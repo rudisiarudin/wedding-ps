@@ -156,12 +156,50 @@ const FloatingNav = () => {
 
 const GiftModal = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [toastText, setToastText] = useState<string | null>(null);
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedText(text);
-    setTimeout(() => setCopiedText(null), 2000);
+  const copyToClipboard = async (text: string, key: string, label: string) => {
+    let success = false;
+
+    // 1. Coba Clipboard API modern jika tersedia dan secure context
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        success = true;
+      } catch (err) {
+        console.warn('Clipboard API error, trying fallback...', err);
+      }
+    }
+
+    // 2. Fallback universal (bekerja di HTTP, localhost IP, WebView HP WhatsApp/Instagram)
+    if (!success) {
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        textArea.setAttribute('readonly', '');
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        textArea.setSelectionRange(0, 99999);
+        success = document.execCommand('copy');
+        document.body.removeChild(textArea);
+      } catch (err) {
+        console.error('Copy fallback failed:', err);
+      }
+    }
+
+    if (success) {
+      setCopiedKey(key);
+      setToastText(`${label} berhasil disalin!`);
+      setTimeout(() => {
+        setCopiedKey(null);
+        setToastText(null);
+      }, 2500);
+    }
   };
 
   return (
@@ -214,11 +252,16 @@ const GiftModal = () => {
                   </div>
                 </div>
                 <button
-                  onClick={() => copyToClipboard(WEDDING_CONFIG.bankAccountToCopy2)}
-                  className="w-9 h-9 bg-[#9B9879] hover:bg-[#4D342D] text-white rounded-[10px] flex items-center justify-center shrink-0 ml-2 transition-colors"
+                  type="button"
+                  onClick={() => copyToClipboard(WEDDING_CONFIG.bankAccountToCopy2, 'bca_putri', 'Nomor Rekening Putri')}
+                  className={`w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0 ml-2 transition-all ${
+                    copiedKey === 'bca_putri'
+                      ? 'bg-[#54543E] scale-105 shadow-md'
+                      : 'bg-[#9B9879] hover:bg-[#4D342D]'
+                  } text-white`}
                   title="Salin Rekening"
                 >
-                  {copiedText === WEDDING_CONFIG.bankAccountToCopy2 ? <Check size={14} className="text-white" /> : <Copy size={14} className="text-white" />}
+                  {copiedKey === 'bca_putri' ? <Check size={15} className="text-white" /> : <Copy size={14} className="text-white" />}
                 </button>
               </div>
 
@@ -234,11 +277,16 @@ const GiftModal = () => {
                   </div>
                 </div>
                 <button
-                  onClick={() => copyToClipboard(WEDDING_CONFIG.bankAccountToCopy)}
-                  className="w-9 h-9 bg-[#9B9879] hover:bg-[#4D342D] text-white rounded-[10px] flex items-center justify-center shrink-0 ml-2 transition-colors"
+                  type="button"
+                  onClick={() => copyToClipboard(WEDDING_CONFIG.bankAccountToCopy, 'bca_syarif', 'Nomor Rekening Syarif')}
+                  className={`w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0 ml-2 transition-all ${
+                    copiedKey === 'bca_syarif'
+                      ? 'bg-[#54543E] scale-105 shadow-md'
+                      : 'bg-[#9B9879] hover:bg-[#4D342D]'
+                  } text-white`}
                   title="Salin Rekening"
                 >
-                  {copiedText === WEDDING_CONFIG.bankAccountToCopy ? <Check size={14} className="text-white" /> : <Copy size={14} className="text-white" />}
+                  {copiedKey === 'bca_syarif' ? <Check size={15} className="text-white" /> : <Copy size={14} className="text-white" />}
                 </button>
               </div>
 
@@ -257,15 +305,35 @@ const GiftModal = () => {
                   </div>
                 </div>
                 <button
-                  onClick={() => copyToClipboard(WEDDING_CONFIG.physicalGiftAddress)}
-                  className="w-9 h-9 bg-[#9B9879] hover:bg-[#4D342D] text-white rounded-[10px] flex items-center justify-center shrink-0 ml-2 transition-colors"
+                  type="button"
+                  onClick={() => copyToClipboard(WEDDING_CONFIG.physicalGiftAddress, 'address', 'Alamat Pengiriman')}
+                  className={`w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0 ml-2 transition-all ${
+                    copiedKey === 'address'
+                      ? 'bg-[#54543E] scale-105 shadow-md'
+                      : 'bg-[#9B9879] hover:bg-[#4D342D]'
+                  } text-white`}
                   title="Salin Alamat"
                 >
-                  {copiedText === WEDDING_CONFIG.physicalGiftAddress ? <Check size={14} className="text-white" /> : <Copy size={14} className="text-white" />}
+                  {copiedKey === 'address' ? <Check size={15} className="text-white" /> : <Copy size={14} className="text-white" />}
                 </button>
               </div>
 
             </div>
+
+            {/* Floating Toast Notification */}
+            <AnimatePresence>
+              {toastText && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                  className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-[#54543E] text-white px-4 py-1.5 rounded-full text-[11px] font-sans font-medium flex items-center gap-1.5 shadow-lg border border-white/20 z-40 whitespace-nowrap"
+                >
+                  <Check size={13} className="text-[#EDE7DB]" />
+                  <span>{toastText}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>
