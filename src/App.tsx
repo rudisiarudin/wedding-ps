@@ -1049,6 +1049,8 @@ const App = () => {
   const halfGalleryLength = Math.ceil(WEDDING_CONFIG.galleryImages.length / 2);
   const galleryRow1 = WEDDING_CONFIG.galleryImages.slice(0, halfGalleryLength);
   const galleryRow2 = WEDDING_CONFIG.galleryImages.slice(halfGalleryLength);
+  const displayRow1 = [...galleryRow1, ...galleryRow1];
+  const displayRow2 = [...galleryRow2, ...galleryRow2];
 
   // Gallery Horizontal Auto-Scroll Refs and State
   const gallerySectionRef = useRef<HTMLElement>(null);
@@ -1067,7 +1069,7 @@ const App = () => {
       ([entry]) => {
         setIsGalleryInView(entry.isIntersecting);
       },
-      { threshold: 0.15 }
+      { threshold: 0.1 }
     );
 
     observer.observe(section);
@@ -1087,41 +1089,45 @@ const App = () => {
     if (galleryResumeTimeoutRef.current) {
       clearTimeout(galleryResumeTimeoutRef.current);
     }
-    // Lanjutkan auto-slide setelah 3 detik pengguna berhenti menyentuh/menggeser
+    // Lanjutkan auto-scroll halus setelah 1.8 detik selesai disentuh
     galleryResumeTimeoutRef.current = setTimeout(() => {
       isGalleryInteractingRef.current = false;
-    }, 3000);
+    }, 1800);
   };
 
-  // Auto-scroll galeri saat berada di viewport galeri dan user tidak sedang menyentuh
+  // Auto-scroll galeri terus-menerus super smooth (60/120fps requestAnimationFrame)
   useEffect(() => {
     if (!isGalleryInView || selectedGalleryImage !== null) return;
 
-    const interval = setInterval(() => {
-      if (isGalleryInteractingRef.current) return;
+    let animId: number;
+    let lastTime = performance.now();
 
-      const advanceRow = (row: HTMLDivElement | null) => {
-        if (!row) return;
-        const maxScroll = row.scrollWidth - row.clientWidth;
-        if (maxScroll <= 0) return;
+    const stepLoop = (now: number) => {
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
 
-        // Ambil lebar 1 card + gap
-        const firstCard = row.firstElementChild as HTMLElement | null;
-        const step = firstCard ? firstCard.offsetWidth + 14 : 200;
+      if (!isGalleryInteractingRef.current) {
+        // Kecepatan 36px per detik: sangat tenang, elegan, dan smooth
+        const move = 36 * dt;
 
-        // Jika sudah di ujung, kembali ke awal secara halus
-        if (row.scrollLeft >= maxScroll - 20) {
-          row.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-          row.scrollBy({ left: step, behavior: 'smooth' });
-        }
-      };
+        [galleryRow1Ref.current, galleryRow2Ref.current].forEach((row, i) => {
+          if (!row) return;
+          const half = row.scrollWidth / 2;
+          const speedFactor = i === 1 ? 0.92 : 1.0;
+          row.scrollLeft += move * speedFactor;
 
-      advanceRow(galleryRow1Ref.current);
-      advanceRow(galleryRow2Ref.current);
-    }, 3500);
+          // Infinite seamless loop
+          if (row.scrollLeft >= half) {
+            row.scrollLeft -= half;
+          }
+        });
+      }
 
-    return () => clearInterval(interval);
+      animId = requestAnimationFrame(stepLoop);
+    };
+
+    animId = requestAnimationFrame(stepLoop);
+    return () => cancelAnimationFrame(animId);
   }, [isGalleryInView, selectedGalleryImage]);
 
   useEffect(() => {
@@ -2342,17 +2348,20 @@ const App = () => {
                   onMouseDown={handleGalleryUserInteractionStart}
                   onMouseUp={handleGalleryUserInteractionEnd}
                   onMouseLeave={handleGalleryUserInteractionEnd}
-                  className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-3 md:gap-4 w-full pr-4 md:pr-8 h-[200px] md:h-[260px] items-stretch touch-pan-x"
+                  className="flex overflow-x-auto no-scrollbar gap-3 md:gap-4 w-full pr-4 md:pr-8 h-[200px] md:h-[260px] items-stretch touch-pan-x cursor-grab active:cursor-grabbing select-none"
                 >
-                  {galleryRow1.map((_, idx) => (
-                    <div key={`row1-${idx}`} className="shrink-0 h-full snap-center">
-                      <GalleryItem
-                        index={idx}
-                        onClick={() => setSelectedGalleryImage(idx)}
-                        className="h-full w-auto transition-all duration-700 shadow-md hover:shadow-xl rounded-lg"
-                      />
-                    </div>
-                  ))}
+                  {displayRow1.map((_, idx) => {
+                    const originalIndex = idx % galleryRow1.length;
+                    return (
+                      <div key={`row1-${idx}`} className="shrink-0 h-full">
+                        <GalleryItem
+                          index={originalIndex}
+                          onClick={() => setSelectedGalleryImage(originalIndex)}
+                          className="h-full w-auto transition-transform duration-300 shadow-md hover:shadow-xl rounded-lg active:scale-95"
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {/* Row 2: Images */}
@@ -2364,16 +2373,16 @@ const App = () => {
                   onMouseDown={handleGalleryUserInteractionStart}
                   onMouseUp={handleGalleryUserInteractionEnd}
                   onMouseLeave={handleGalleryUserInteractionEnd}
-                  className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-3 md:gap-4 w-full pr-4 md:pr-8 h-[200px] md:h-[260px] items-stretch touch-pan-x"
+                  className="flex overflow-x-auto no-scrollbar gap-3 md:gap-4 w-full pr-4 md:pr-8 h-[200px] md:h-[260px] items-stretch touch-pan-x cursor-grab active:cursor-grabbing select-none"
                 >
-                  {galleryRow2.map((_, idx) => {
-                    const originalIndex = halfGalleryLength + idx;
+                  {displayRow2.map((_, idx) => {
+                    const originalIndex = halfGalleryLength + (idx % galleryRow2.length);
                     return (
-                      <div key={`row2-${idx}`} className="shrink-0 h-full snap-center">
+                      <div key={`row2-${idx}`} className="shrink-0 h-full">
                         <GalleryItem
                           index={originalIndex}
                           onClick={() => setSelectedGalleryImage(originalIndex)}
-                          className="h-full w-auto transition-all duration-700 shadow-md hover:shadow-xl rounded-lg"
+                          className="h-full w-auto transition-transform duration-300 shadow-md hover:shadow-xl rounded-lg active:scale-95"
                         />
                       </div>
                     );
