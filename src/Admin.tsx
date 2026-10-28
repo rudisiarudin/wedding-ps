@@ -44,12 +44,12 @@ const Admin = () => {
   const [searchWishes, setSearchWishes] = useState('');
 
   // Filtered lists
-  const filteredGuests = invitedGuests.filter(g => 
+  const filteredGuests = invitedGuests.filter(g =>
     g.name.toLowerCase().includes(searchGuests.toLowerCase())
   );
-  
-  const filteredWishes = wishes.filter(w => 
-    w.name.toLowerCase().includes(searchWishes.toLowerCase()) || 
+
+  const filteredWishes = wishes.filter(w =>
+    w.name.toLowerCase().includes(searchWishes.toLowerCase()) ||
     w.message.toLowerCase().includes(searchWishes.toLowerCase())
   );
 
@@ -91,7 +91,7 @@ const Admin = () => {
     if (action === 'prev') setCurrentPageGuests(prev => Math.max(prev - 1, 1));
     else if (action === 'next') setCurrentPageGuests(prev => Math.min(prev + 1, totalPagesGuests));
     else setCurrentPageGuests(action);
-    
+
     // Slight delay to allow DOM to adjust
     setTimeout(() => {
       document.getElementById('guests-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -150,7 +150,7 @@ const Admin = () => {
 
   const addToTracker = async (name: string, url: string, cat: string) => {
     if (!name || !url) return;
-    
+
     try {
       const { data, error } = await supabase
         .from('guests')
@@ -181,7 +181,7 @@ const Admin = () => {
   };
 
   const clearAllGuests = async () => {
-    if(!confirm('Hapus semua riwayat di database?')) return;
+    if (!confirm('Hapus semua riwayat di database?')) return;
     try {
       const { error } = await supabase
         .from('guests')
@@ -265,9 +265,9 @@ const Admin = () => {
     navigator.clipboard.writeText(generatedUrl);
     setCopiedUrl(true);
     showToast('URL undangan berhasil disalin!');
-    
+
     addToTracker(guestName, generatedUrl, category);
-    
+
     setTimeout(() => setCopiedUrl(false), 2000);
   };
 
@@ -470,7 +470,7 @@ const Admin = () => {
                         type="text"
                         value={guestName}
                         onChange={(e) => setGuestName(e.target.value)}
-                        placeholder="Misal: Joko Widodo"
+                        placeholder="Misal: Gibran Raka Bumi Raka"
                         className="w-full bg-[#F9F8F4] border border-primary/10 rounded-[12px] px-4 py-3 text-base md:text-sm focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/10 transition-all font-medium"
                       />
                     </div>
@@ -553,18 +553,18 @@ const Admin = () => {
                 <div className="aspect-[9/16] max-w-[280px] mx-auto bg-neutral rounded-[20px] border-4 border-primary/5 overflow-hidden relative shadow-inner">
                   {guestName ? (
                     <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-cover bg-center" style={{ backgroundImage: 'url("/VSF02248.webp")' }}>
-                       <div className="absolute inset-0 bg-white/40" />
-                       <div className="absolute inset-0 bg-texture opacity-20" />
-                       <div className="relative z-10 flex flex-col items-center w-full">
-                         <p className="outfit-font text-[8px] font-bold uppercase tracking-[0.4em] mb-4 text-primary/80">The Wedding of</p>
-                         <h4 className="italiana-font text-3xl mb-8 font-bold text-primary drop-shadow-md">Putri & Syarif</h4>
-                         <div className="w-12 h-px bg-primary/40 mb-8" />
-                         <p className="serif-font text-[10px] italic text-primary/80 mb-2">Kepada Yth:</p>
-                         <p className="outfit-font text-lg font-bold text-primary drop-shadow-md">{guestName}</p>
-                         <div className="mt-12 w-full px-4">
-                           <div className="h-10 bg-primary/20 backdrop-blur-sm rounded-full w-full animate-pulse" />
-                         </div>
-                       </div>
+                      <div className="absolute inset-0 bg-white/40" />
+                      <div className="absolute inset-0 bg-texture opacity-20" />
+                      <div className="relative z-10 flex flex-col items-center w-full">
+                        <p className="outfit-font text-[8px] font-bold uppercase tracking-[0.4em] mb-4 text-primary/80">The Wedding of</p>
+                        <h4 className="italiana-font text-3xl mb-8 font-bold text-primary drop-shadow-md">Putri & Syarif</h4>
+                        <div className="w-12 h-px bg-primary/40 mb-8" />
+                        <p className="serif-font text-[10px] italic text-primary/80 mb-2">Kepada Yth:</p>
+                        <p className="outfit-font text-lg font-bold text-primary drop-shadow-md">{guestName}</p>
+                        <div className="mt-12 w-full px-4">
+                          <div className="h-10 bg-primary/20 backdrop-blur-sm rounded-full w-full animate-pulse" />
+                        </div>
+                      </div>
                     </div>
                   ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center text-primary/30">
@@ -584,7 +584,7 @@ const Admin = () => {
             <div className="flex items-center justify-between mb-6">
               <h3 className="italiana-font text-2xl text-primary">Riwayat Undangan</h3>
               {invitedGuests.length > 0 && (
-                <button 
+                <button
                   onClick={clearAllGuests}
                   className="text-[10px] font-bold text-red-500/60 hover:text-red-500 uppercase tracking-widest transition-colors"
                 >
@@ -645,14 +645,14 @@ const Admin = () => {
                                 </td>
                                 <td className="px-6 py-4 text-right">
                                   <div className="flex items-center justify-end gap-2">
-                                    <button 
+                                    <button
                                       onClick={() => sendGuestWa(guest.name, guest.url, guest.category)}
                                       className="w-8 h-8 rounded-full bg-green-50 text-green-500 hover:bg-green-100 hover:text-green-600 flex items-center justify-center transition-all"
                                       title="Kirim WA"
                                     >
                                       <MessageSquare size={14} />
                                     </button>
-                                    <button 
+                                    <button
                                       onClick={() => {
                                         navigator.clipboard.writeText(guest.url);
                                         showToast('URL disalin!');
@@ -662,7 +662,7 @@ const Admin = () => {
                                     >
                                       <Copy size={14} />
                                     </button>
-                                    <button 
+                                    <button
                                       onClick={() => removeGuest(guest.id)}
                                       className="w-8 h-8 rounded-full bg-red-50 text-red-300 hover:bg-red-100 hover:text-red-500 flex items-center justify-center transition-all animate-none"
                                       title="Hapus"
@@ -731,37 +731,36 @@ const Admin = () => {
                           <div className="w-full sm:w-auto overflow-x-auto scrollbar-hide pb-2 sm:pb-0">
                             <div className="flex items-center justify-center sm:justify-end gap-1 min-w-max px-1">
                               <button
-                              onClick={() => handlePageChangeGuests('prev')}
-                              disabled={currentPageGuests === 1}
-                              className="w-8 h-8 rounded-full flex items-center justify-center border border-primary/10 hover:bg-primary/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-primary"
-                            >
-                              <ChevronLeft size={16} />
-                            </button>
-                            {getPaginationGroup(currentPageGuests, totalPagesGuests).map((pageNum, idx) => (
-                              <React.Fragment key={idx}>
-                                {pageNum === '...' ? (
-                                  <span className="w-8 h-8 flex items-center justify-center text-primary/40 text-xs">...</span>
-                                ) : (
-                                  <button
-                                    onClick={() => handlePageChangeGuests(pageNum as number)}
-                                    className={`w-8 h-8 rounded-full text-xs font-bold transition-all ${
-                                      currentPageGuests === pageNum
-                                        ? 'bg-primary text-neutral shadow-md shadow-primary/10'
-                                        : 'border border-primary/5 hover:bg-primary/5 text-primary'
-                                    }`}
-                                  >
-                                    {pageNum}
-                                  </button>
-                                )}
-                              </React.Fragment>
-                            ))}
-                            <button
-                              onClick={() => handlePageChangeGuests('next')}
-                              disabled={currentPageGuests === totalPagesGuests}
-                              className="w-8 h-8 rounded-full flex items-center justify-center border border-primary/10 hover:bg-primary/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-primary"
-                            >
-                              <ChevronRight size={16} />
-                            </button>
+                                onClick={() => handlePageChangeGuests('prev')}
+                                disabled={currentPageGuests === 1}
+                                className="w-8 h-8 rounded-full flex items-center justify-center border border-primary/10 hover:bg-primary/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-primary"
+                              >
+                                <ChevronLeft size={16} />
+                              </button>
+                              {getPaginationGroup(currentPageGuests, totalPagesGuests).map((pageNum, idx) => (
+                                <React.Fragment key={idx}>
+                                  {pageNum === '...' ? (
+                                    <span className="w-8 h-8 flex items-center justify-center text-primary/40 text-xs">...</span>
+                                  ) : (
+                                    <button
+                                      onClick={() => handlePageChangeGuests(pageNum as number)}
+                                      className={`w-8 h-8 rounded-full text-xs font-bold transition-all ${currentPageGuests === pageNum
+                                          ? 'bg-primary text-neutral shadow-md shadow-primary/10'
+                                          : 'border border-primary/5 hover:bg-primary/5 text-primary'
+                                        }`}
+                                    >
+                                      {pageNum}
+                                    </button>
+                                  )}
+                                </React.Fragment>
+                              ))}
+                              <button
+                                onClick={() => handlePageChangeGuests('next')}
+                                disabled={currentPageGuests === totalPagesGuests}
+                                className="w-8 h-8 rounded-full flex items-center justify-center border border-primary/10 hover:bg-primary/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-primary"
+                              >
+                                <ChevronRight size={16} />
+                              </button>
                             </div>
                           </div>
                         </div>
@@ -777,7 +776,7 @@ const Admin = () => {
         {/* Wishes Content */}
         {activeTab === 'wishes' && (
           <motion.div id="wishes-section" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            
+
             {/* Summary Cards */}
             {!isLoadingWishes && wishes.length > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-2">
@@ -800,8 +799,8 @@ const Admin = () => {
                 <h2 className="italiana-font text-2xl mb-1">Daftar Ucapan</h2>
                 <p className="text-sm text-primary/60">Kelola dan balas ucapan yang dikirimkan oleh para tamu.</p>
               </div>
-              <button 
-                onClick={fetchWishes} 
+              <button
+                onClick={fetchWishes}
                 className="text-xs border border-primary/20 px-4 py-2 rounded-[10px] hover:bg-primary/5 transition-colors font-medium flex items-center gap-2"
               >
                 Refresh
@@ -891,37 +890,36 @@ const Admin = () => {
                     <div className="w-full sm:w-auto overflow-x-auto scrollbar-hide pb-2 sm:pb-0">
                       <div className="flex items-center justify-center sm:justify-end gap-1 min-w-max px-1">
                         <button
-                        onClick={() => handlePageChangeWishes('prev')}
-                        disabled={currentPageWishes === 1}
-                        className="w-8 h-8 rounded-full flex items-center justify-center border border-primary/10 hover:bg-primary/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-primary"
-                      >
-                        <ChevronLeft size={16} />
-                      </button>
-                      {getPaginationGroup(currentPageWishes, totalPagesWishes).map((pageNum, idx) => (
-                        <React.Fragment key={idx}>
-                          {pageNum === '...' ? (
-                            <span className="w-8 h-8 flex items-center justify-center text-primary/40 text-xs">...</span>
-                          ) : (
-                            <button
-                              onClick={() => handlePageChangeWishes(pageNum as number)}
-                              className={`w-8 h-8 rounded-full text-xs font-bold transition-all ${
-                                currentPageWishes === pageNum
-                                  ? 'bg-primary text-neutral shadow-md shadow-primary/10'
-                                  : 'border border-primary/5 hover:bg-primary/5 text-primary'
-                              }`}
-                            >
-                              {pageNum}
-                            </button>
-                          )}
-                        </React.Fragment>
-                      ))}
-                      <button
-                        onClick={() => handlePageChangeWishes('next')}
-                        disabled={currentPageWishes === totalPagesWishes}
-                        className="w-8 h-8 rounded-full flex items-center justify-center border border-primary/10 hover:bg-primary/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-primary"
-                      >
-                        <ChevronRight size={16} />
-                      </button>
+                          onClick={() => handlePageChangeWishes('prev')}
+                          disabled={currentPageWishes === 1}
+                          className="w-8 h-8 rounded-full flex items-center justify-center border border-primary/10 hover:bg-primary/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-primary"
+                        >
+                          <ChevronLeft size={16} />
+                        </button>
+                        {getPaginationGroup(currentPageWishes, totalPagesWishes).map((pageNum, idx) => (
+                          <React.Fragment key={idx}>
+                            {pageNum === '...' ? (
+                              <span className="w-8 h-8 flex items-center justify-center text-primary/40 text-xs">...</span>
+                            ) : (
+                              <button
+                                onClick={() => handlePageChangeWishes(pageNum as number)}
+                                className={`w-8 h-8 rounded-full text-xs font-bold transition-all ${currentPageWishes === pageNum
+                                    ? 'bg-primary text-neutral shadow-md shadow-primary/10'
+                                    : 'border border-primary/5 hover:bg-primary/5 text-primary'
+                                  }`}
+                              >
+                                {pageNum}
+                              </button>
+                            )}
+                          </React.Fragment>
+                        ))}
+                        <button
+                          onClick={() => handlePageChangeWishes('next')}
+                          disabled={currentPageWishes === totalPagesWishes}
+                          className="w-8 h-8 rounded-full flex items-center justify-center border border-primary/10 hover:bg-primary/5 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-primary"
+                        >
+                          <ChevronRight size={16} />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -969,18 +967,18 @@ const Admin = () => {
                 <div className="aspect-[9/16] w-[260px] bg-neutral rounded-[20px] border-4 border-primary/5 overflow-hidden relative shadow-inner">
                   {guestName ? (
                     <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-cover bg-center" style={{ backgroundImage: 'url("/VSF02248.webp")' }}>
-                       <div className="absolute inset-0 bg-white/40" />
-                       <div className="absolute inset-0 bg-texture opacity-20" />
-                       <div className="relative z-10 flex flex-col items-center w-full">
-                         <p className="outfit-font text-[8px] font-bold uppercase tracking-[0.4em] mb-4 text-primary/80">The Wedding of</p>
-                         <h4 className="italiana-font text-2xl mb-6 font-bold text-primary drop-shadow-md">Putri & Syarif</h4>
-                         <div className="w-10 h-px bg-primary/40 mb-6" />
-                         <p className="serif-font text-[9px] italic text-primary/80 mb-2">Kepada Yth:</p>
-                         <p className="outfit-font text-base font-bold text-primary drop-shadow-md">{guestName}</p>
-                         <div className="mt-8 w-full px-4">
-                           <div className="h-10 bg-primary/20 backdrop-blur-sm rounded-full w-full animate-pulse" />
-                         </div>
-                       </div>
+                      <div className="absolute inset-0 bg-white/40" />
+                      <div className="absolute inset-0 bg-texture opacity-20" />
+                      <div className="relative z-10 flex flex-col items-center w-full">
+                        <p className="outfit-font text-[8px] font-bold uppercase tracking-[0.4em] mb-4 text-primary/80">The Wedding of</p>
+                        <h4 className="italiana-font text-2xl mb-6 font-bold text-primary drop-shadow-md">Putri & Syarif</h4>
+                        <div className="w-10 h-px bg-primary/40 mb-6" />
+                        <p className="serif-font text-[9px] italic text-primary/80 mb-2">Kepada Yth:</p>
+                        <p className="outfit-font text-base font-bold text-primary drop-shadow-md">{guestName}</p>
+                        <div className="mt-8 w-full px-4">
+                          <div className="h-10 bg-primary/20 backdrop-blur-sm rounded-full w-full animate-pulse" />
+                        </div>
+                      </div>
                     </div>
                   ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-primary/30">
@@ -1004,13 +1002,12 @@ const Admin = () => {
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-              className={`pointer-events-auto p-4 rounded-xl shadow-lg flex items-center justify-between gap-3 text-sm font-medium border ${
-                toast.type === 'error'
+              className={`pointer-events-auto p-4 rounded-xl shadow-lg flex items-center justify-between gap-3 text-sm font-medium border ${toast.type === 'error'
                   ? 'bg-red-50 text-red-800 border-red-100'
                   : toast.type === 'info'
-                  ? 'bg-blue-50 text-blue-800 border-blue-100'
-                  : 'bg-white text-primary border-primary/10'
-              }`}
+                    ? 'bg-blue-50 text-blue-800 border-blue-100'
+                    : 'bg-white text-primary border-primary/10'
+                }`}
             >
               <div className="flex items-center gap-2">
                 {toast.type === 'success' && <CheckCircle2 size={16} className="text-green-600" />}

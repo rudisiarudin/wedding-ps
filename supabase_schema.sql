@@ -32,7 +32,7 @@ create table if not exists public.settings (
 
 -- Masukkan passcode awal untuk login Admin (bisa diubah sesuai keinginan)
 insert into public.settings (key, value)
-values ('admin_passcode', 'syarifputri2026')
+values ('admin_passcode', '221126')
 on conflict (key) do nothing;
 
 -- ==============================================================================

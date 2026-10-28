@@ -1050,6 +1050,80 @@ const App = () => {
   const galleryRow1 = WEDDING_CONFIG.galleryImages.slice(0, halfGalleryLength);
   const galleryRow2 = WEDDING_CONFIG.galleryImages.slice(halfGalleryLength);
 
+  // Gallery Horizontal Auto-Scroll Refs and State
+  const gallerySectionRef = useRef<HTMLElement>(null);
+  const galleryRow1Ref = useRef<HTMLDivElement>(null);
+  const galleryRow2Ref = useRef<HTMLDivElement>(null);
+  const [isGalleryInView, setIsGalleryInView] = useState(false);
+  const isGalleryInteractingRef = useRef(false);
+  const galleryResumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Pantau apakah user sudah masuk ke area galeri (IntersectionObserver)
+  useEffect(() => {
+    const section = gallerySectionRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsGalleryInView(entry.isIntersecting);
+      },
+      { threshold: 0.15 }
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  // Handler interaksi manual pengguna (swipe / touch / scroll)
+  const handleGalleryUserInteractionStart = () => {
+    isGalleryInteractingRef.current = true;
+    if (galleryResumeTimeoutRef.current) {
+      clearTimeout(galleryResumeTimeoutRef.current);
+      galleryResumeTimeoutRef.current = null;
+    }
+  };
+
+  const handleGalleryUserInteractionEnd = () => {
+    if (galleryResumeTimeoutRef.current) {
+      clearTimeout(galleryResumeTimeoutRef.current);
+    }
+    // Lanjutkan auto-slide setelah 3 detik pengguna berhenti menyentuh/menggeser
+    galleryResumeTimeoutRef.current = setTimeout(() => {
+      isGalleryInteractingRef.current = false;
+    }, 3000);
+  };
+
+  // Auto-scroll galeri saat berada di viewport galeri dan user tidak sedang menyentuh
+  useEffect(() => {
+    if (!isGalleryInView || selectedGalleryImage !== null) return;
+
+    const interval = setInterval(() => {
+      if (isGalleryInteractingRef.current) return;
+
+      const advanceRow = (row: HTMLDivElement | null) => {
+        if (!row) return;
+        const maxScroll = row.scrollWidth - row.clientWidth;
+        if (maxScroll <= 0) return;
+
+        // Ambil lebar 1 card + gap
+        const firstCard = row.firstElementChild as HTMLElement | null;
+        const step = firstCard ? firstCard.offsetWidth + 14 : 200;
+
+        // Jika sudah di ujung, kembali ke awal secara halus
+        if (row.scrollLeft >= maxScroll - 20) {
+          row.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          row.scrollBy({ left: step, behavior: 'smooth' });
+        }
+      };
+
+      advanceRow(galleryRow1Ref.current);
+      advanceRow(galleryRow2Ref.current);
+    }, 3500);
+
+    return () => clearInterval(interval);
+  }, [isGalleryInView, selectedGalleryImage]);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const to = params.get('to');
@@ -2227,7 +2301,7 @@ const App = () => {
           </section>
 
           {/* Gallery Section */}
-          <section id="gallery" className="py-24 px-4 space-y-12 bg-[#EDE7DB] relative overflow-hidden">
+          <section ref={gallerySectionRef} id="gallery" className="py-24 px-4 space-y-12 bg-[#EDE7DB] relative overflow-hidden">
             {/* Background Image: Light Cream Botanical Illustration */}
             <div className="absolute inset-0 pointer-events-none z-0">
               <img
@@ -2260,7 +2334,16 @@ const App = () => {
               <div className="w-full relative z-10 pt-8 pb-16 space-y-4 md:space-y-6 overflow-hidden pl-4 md:pl-8">
                 
                 {/* Row 1: Images */}
-                <div className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-3 md:gap-4 w-full pr-4 md:pr-8 h-[200px] md:h-[260px] items-stretch">
+                <div 
+                  ref={galleryRow1Ref}
+                  onTouchStart={handleGalleryUserInteractionStart}
+                  onTouchEnd={handleGalleryUserInteractionEnd}
+                  onTouchCancel={handleGalleryUserInteractionEnd}
+                  onMouseDown={handleGalleryUserInteractionStart}
+                  onMouseUp={handleGalleryUserInteractionEnd}
+                  onMouseLeave={handleGalleryUserInteractionEnd}
+                  className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-3 md:gap-4 w-full pr-4 md:pr-8 h-[200px] md:h-[260px] items-stretch touch-pan-x"
+                >
                   {galleryRow1.map((_, idx) => (
                     <div key={`row1-${idx}`} className="shrink-0 h-full snap-center">
                       <GalleryItem
@@ -2273,7 +2356,16 @@ const App = () => {
                 </div>
 
                 {/* Row 2: Images */}
-                <div className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-3 md:gap-4 w-full pr-4 md:pr-8 h-[200px] md:h-[260px] items-stretch">
+                <div 
+                  ref={galleryRow2Ref}
+                  onTouchStart={handleGalleryUserInteractionStart}
+                  onTouchEnd={handleGalleryUserInteractionEnd}
+                  onTouchCancel={handleGalleryUserInteractionEnd}
+                  onMouseDown={handleGalleryUserInteractionStart}
+                  onMouseUp={handleGalleryUserInteractionEnd}
+                  onMouseLeave={handleGalleryUserInteractionEnd}
+                  className="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-3 md:gap-4 w-full pr-4 md:pr-8 h-[200px] md:h-[260px] items-stretch touch-pan-x"
+                >
                   {galleryRow2.map((_, idx) => {
                     const originalIndex = halfGalleryLength + idx;
                     return (
