@@ -1486,8 +1486,8 @@ const App = () => {
                 </Reveal>
               </div>
 
-              {/* Bottom Block: QS Adz-Zariyat & Scroll Indicator (Dinaikkan agar dekat ke blok tanggal, seimbang dari atas ke bawah) */}
-              <div className="flex flex-col items-center text-center w-full max-w-sm mx-auto mt-8 sm:mt-12">
+              {/* Bottom Block: QS Adz-Zariyat & Scroll Indicator (Diturunkan sedikit agar berjarak proporsional dari tanggal) */}
+              <div className="flex flex-col items-center text-center w-full max-w-sm mx-auto mt-14 sm:mt-20">
                 <Reveal delay={0.6} y={15} duration={1.2}>
                   <div className="px-3">
                     <p className="serif-font text-[11.5px] sm:text-[13px] italic leading-[1.8] text-[#4D342D]/90">
