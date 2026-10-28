@@ -1,0 +1,393 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Lateef:wght@400;700&family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&display=swap');
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Charlotte Southern';
+  src: url('/font/charlotte_southern/Charlotte Southern.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Italiana';
+  src: url('/font/Italiana/Italiana-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cinzel';
+  src: url('/font/Cinzel/Cinzel-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Palet baru */
+  --color-primary:   #6A6A53;  /* Moss */
+  --color-secondary: #9B9879;  /* Olive */
+  --color-tertiary:  #DDCCB7;  /* Linen */
+  --color-gold:      #4D342D;  /* aksen kini Mahogany */
+  --color-neutral:   #EDE7DB;  /* Egg Shell */
+  --color-white:     #FFFFFF;
+
+  /* Turunan yang disarankan */
+  --color-primary-deep: #54543E; /* Moss pekat — judul & teks di latar terang */
+  --color-ink:       #4D342D;  /* teks isi utama (Mahogany) */
+  --color-muted:     #6F6C50;  /* teks sekunder di latar terang */
+  --color-line:      #DDCCB7;  /* garis & border lembut */
+  --color-linen-tint: rgba(221, 204, 183, 0.45); /* latar kartu lembut */
+}
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Lora", serif;
+  --font-display: "Playfair Display", serif;
+  --font-script: "Charlotte Southern", cursive;
+  --font-arabic: "Amiri", serif;
+  --font-outfit: "Outfit", sans-serif;
+
+  --color-primary: #6A6A53; /* Moss */
+  --color-secondary: #9B9879; /* Olive */
+  --color-tertiary: #DDCCB7; /* Linen */
+  --color-neutral: #EDE7DB; /* Egg Shell */
+  --color-white: #FFFFFF;
+  
+  --color-earth-dark: #6A6A53;
+  --color-earth-mid: #9B9879;
+  --color-earth-light: #DDCCB7;
+  --color-earth-cream: #EDE7DB;
+  --color-earth-accent: #4D342D;
+  --color-gold: #4D342D;
+  --color-primary-deep: #54543E;
+  --color-ink: #4D342D;
+  --color-moss: #6A6A53;
+  --color-olive: #9B9879;
+  --color-mahogany: #4D342D;
+  --color-eggshell: #EDE7DB;
+  --color-linen: #DDCCB7;
+  
+  /* Global Radius Token - Refined Classic 10px (iOS Style) */
+  --radius-xs: 2px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 10px;
+  --radius-xl: 10px;
+  --radius-2xl: 10px;
+  --radius-3xl: 10px;
+  --radius-[2rem]: 10px;
+  --radius-[3rem]: 10px;
+}
+
+@layer base {
+  html {
+    scroll-snap-type: y proximity;
+  }
+  section {
+    scroll-snap-align: start;
+  }
+
+  body {
+    @apply min-h-screen text-primary selection:bg-secondary/25 selection:text-primary;
+    background: radial-gradient(circle at top, rgba(255,255,255,0.98), rgba(237,231,219,0.95) 35%, rgba(221,204,183,0.8) 100%);
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(237,231,219,0.95) 45%, rgba(221,204,183,0.5) 100%), url('/images/paper-fibers.webp');
+    background-size: auto, cover;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Glassmorphism support for all devices */
+  .backdrop-blur-2xl {
+    -webkit-backdrop-filter: blur(40px);
+    backdrop-filter: blur(40px);
+  }
+
+  .backdrop-blur-md {
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+}
+
+.glass-card {
+  @apply bg-neutral/40 backdrop-blur-md border border-primary/5 shadow-sm;
+}
+
+.design-card {
+  @apply bg-white/50 backdrop-blur-sm p-8 rounded-[10px] shadow-sm border border-primary/5;
+}
+
+.btn-primary {
+  @apply bg-[#4D342D] text-[#EDE7DB] px-8 py-4 rounded-full font-semibold text-[11px] tracking-[0.32em] uppercase transition-all shadow-[0_18px_40px_-30px_rgba(77,52,45,0.35)] hover:bg-[#6A6A53];
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+}
+
+.glass-navbar {
+  @apply bg-white/70 backdrop-blur-2xl border border-white/70 shadow-[0_24px_80px_-50px_rgba(0,0,0,0.22)] rounded-full;
+}
+
+.nav-icon {
+  @apply flex min-h-[3.2rem] min-w-[3.2rem] items-center justify-center rounded-full transition-all duration-300;
+}
+
+.nav-icon-active {
+  @apply bg-[#DDCCB7]/60 text-[#4D342D] shadow-[0_8px_18px_-10px_rgba(77,52,45,0.35)];
+}
+
+.btn-outlined {
+  @apply border border-primary/20 text-primary px-8 py-4 rounded-full font-bold text-[10px] tracking-[0.3em] uppercase transition-all hover:bg-secondary/15 active:scale-95;
+}
+
+.section-card {
+  @apply bg-white/90 border border-primary/10 rounded-[32px] shadow-2xl shadow-primary/10 backdrop-blur-xl;
+}
+
+.section-heading {
+  @apply text-primary font-semibold;
+}
+
+.section-subtitle {
+  @apply text-[10px] uppercase tracking-[0.35em] text-secondary font-bold;
+}
+
+.script-font {
+  font-family: var(--font-script);
+}
+
+.serif-font {
+  font-family: var(--font-serif);
+}
+
+.display-font {
+  font-family: var(--font-display);
+}
+
+.playfair-font {
+  font-family: 'Playfair Display', serif;
+}
+
+.arabic-font {
+  font-family: var(--font-arabic);
+}
+
+.lateef-font {
+  font-family: 'Lateef', serif;
+}
+
+.sans-font {
+  font-family: var(--font-sans);
+}
+
+.outfit-font {
+  font-family: var(--font-outfit);
+}
+
+.charlotte-font {
+  font-family: 'Charlotte Southern', sans-serif;
+}
+
+.italiana-font {
+  font-family: 'Italiana', serif;
+}
+
+.cinzel-font {
+  font-family: 'Cinzel', serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 3px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-neutral);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 10px;
+}
+
+/* Floating Animation */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes slow-zoom {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.05); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-slow-zoom {
+  animation: slow-zoom 15s ease-in-out infinite alternate;
+}
+
+/* Texture Overlay */
+.bg-texture {
+  background-image: url("/images/paper-fibers.webp");
+}
+
+.mask-oval {
+  clip-path: ellipse(45% 50% at 50% 50%);
+}
+
+.mask-arch {
+  border-radius: 1000px 1000px 0 0;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-tertiary);
+  border-radius: 10px;
+}
+
+/* Parallax-ish effect */
+.parallax-bg {
+  transform: translateZ(-1px) scale(2);
+}
+
+.ticket-cutout {
+  mask-image: radial-gradient(circle at 0 50%, transparent 15px, black 16px),
+              radial-gradient(circle at 100% 50%, transparent 15px, black 16px);
+  mask-composite: intersect;
+}
+
+/* === Vintage Guestbook Styles (Moss · Olive · Mahogany · Egg Shell · Linen) === */
+.vintage-form-card {
+  background:
+    url('/images/paper-fibers.webp'),
+    linear-gradient(170deg, #5E6342 0%, #54543E 55%, #474735 100%);
+  background-blend-mode: overlay;
+  background-size: cover, auto;
+  border: 1px solid rgba(221, 204, 183, 0.35);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.12) inset,
+    0 16px 40px -10px rgba(0, 0, 0, 0.35),
+    0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 1.75rem 1.5rem;
+  border-radius: 12px;
+  position: relative;
+}
+
+.vintage-card-inset {
+  background: linear-gradient(170deg, #EDE7DB, #DDCCB7);
+  border: 1px solid rgba(155, 152, 121, 0.2);
+  box-shadow: inset 0 2px 8px rgba(77, 52, 45, 0.06);
+  border-radius: 6px;
+}
+
+.vintage-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+.vintage-corner::before,
+.vintage-corner::after {
+  content: '';
+  position: absolute;
+  background: rgba(221, 204, 183, 0.5);
+}
+
+.vintage-corner::before {
+  width: 100%;
+  height: 0.5px;
+}
+
+.vintage-corner::after {
+  width: 0.5px;
+  height: 100%;
+}
+
+.vintage-corner-tl { top: 8px; left: 8px; }
+.vintage-corner-tl::before { top: 0; left: 0; }
+.vintage-corner-tl::after { top: 0; left: 0; }
+
+.vintage-corner-tr { top: 8px; right: 8px; }
+.vintage-corner-tr::before { top: 0; right: 0; }
+.vintage-corner-tr::after { top: 0; right: 0; }
+
+.vintage-corner-bl { bottom: 8px; left: 8px; }
+.vintage-corner-bl::before { bottom: 0; left: 0; }
+.vintage-corner-bl::after { bottom: 0; left: 0; }
+
+.vintage-corner-br { bottom: 8px; right: 8px; }
+.vintage-corner-br::before { bottom: 0; right: 0; }
+.vintage-corner-br::after { bottom: 0; right: 0; }
+
+.vintage-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(221, 204, 183, 0.9);
+  border-bottom: 1px solid rgba(155, 152, 121, 0.4);
+  border-radius: 6px;
+  padding: 0.65rem 0.85rem;
+  font-family: 'Lora', serif;
+  font-size: 13px;
+  color: #4D342D;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.vintage-input::placeholder {
+  color: rgba(155, 152, 121, 0.6);
+  font-style: italic;
+}
+
+.vintage-input:focus {
+  border-color: #6A6A53;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 8px rgba(106, 106, 83, 0.15);
+}
+
+.vintage-wish-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  background:
+    url('/images/paper-fibers.webp'),
+    linear-gradient(175deg, rgba(255, 255, 255, 0.92), rgba(237, 231, 219, 0.85));
+  background-blend-mode: overlay;
+  background-size: cover, auto;
+  border: 1px solid rgba(155, 152, 121, 0.15);
+  border-bottom: 1px solid rgba(155, 152, 121, 0.25);
+  border-radius: 6px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.vintage-wish-card:hover {
+  background: linear-gradient(175deg, rgba(255, 255, 255, 0.98), rgba(237, 231, 219, 0.92));
+  box-shadow: 0 4px 14px rgba(77, 52, 45, 0.08);
+}
+
+.botanical-tint {
+  filter: sepia(30%) hue-rotate(40deg) saturate(80%) brightness(95%);
+}
+
+/* Utilities */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+

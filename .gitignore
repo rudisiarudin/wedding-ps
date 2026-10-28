@@ -1,0 +1,14 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Raw heavy camera photos (sudah dioptimasi ke .webp)
+public/VSF*.jpg
+public/VSF*.JPG
+scratch_*
+.agents/
