@@ -826,7 +826,7 @@ const Admin = () => {
                     {/* Screen View */}
                     <div className="w-full h-full rounded-[24px] overflow-hidden relative bg-[#FAF8F5] flex flex-col justify-center items-center text-center">
                       <img
-                        src="/VSF02248.webp"
+                        src="/gallery/bawah-2.webp"
                         alt="Cover"
                         className="absolute inset-0 w-full h-full object-cover"
                       />
@@ -1426,7 +1426,7 @@ const Admin = () => {
 
               <div className="w-full aspect-[9/16] rounded-2xl overflow-hidden relative shadow-inner">
                 <img
-                  src="/VSF02248.webp"
+                  src="/gallery/bawah-2.webp"
                   alt="Cover"
                   className="absolute inset-0 w-full h-full object-cover"
                 />

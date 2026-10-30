@@ -2,18 +2,18 @@ export const WEDDING_CONFIG = {
   // Informasi Utama
   brideName: 'Putri Andiani',
   brideNickname: 'Putri',
-  brideParents: 'Bapak Andrian & Ibu Ai Mimah',
+  brideParents: 'Mr. Andrian & Mrs. Ai Mimah',
   brideInstagram: 'https://instagram.com/putriandiani',
   bridePhoto: '/images/ayu.webp',
 
   groomName: 'Moch Syarif Hidayat',
   groomNickname: 'Syarif',
-  groomParents: 'Bapak Nindin & Ibu Yayah',
+  groomParents: 'Mr. Nindin & Mrs. Yayah',
   groomInstagram: 'https://instagram.com/syarifhidayat',
   groomPhoto: '/images/rudi.webp',
 
   weddingDate: '22 . 11 . 2026',
-  weddingDateFormal: 'Minggu, 22 November 2026',
+  weddingDateFormal: 'Sunday, 22 November 2026',
   weddingDateISO: '2026-11-22T08:30:00+07:00', // Format: YYYY-MM-DDTHH:mm:ss
 
   // Lokasi & Waktu Akad Nikah
@@ -23,7 +23,7 @@ export const WEDDING_CONFIG = {
   akadGoogleMapsLink: 'https://maps.app.goo.gl/3FLRtUZzo5dF4da48',
 
   // Lokasi & Waktu Resepsi
-  resepsiTime: '11.00 WIB - Selesai',
+  resepsiTime: '11.00 WIB onwards',
   resepsiLocationName: 'MI Mihadunal Ula',
   resepsiLocationAddress: 'Sukatani, Kec. Pacet, Kab. Cianjur, Jawa Barat 43253',
   resepsiGoogleMapsLink: 'https://maps.app.goo.gl/3FLRtUZzo5dF4da48',
@@ -43,22 +43,22 @@ export const WEDDING_CONFIG = {
   bankAccountToCopy2: '1970822875',
 
   physicalGiftAddress: 'Sukatani, Kec. Pacet, Kab. Cianjur, Jawa Barat 43253',
-  physicalGiftReceiver: '(Penerima: Putri / Syarif)',
+  physicalGiftReceiver: '(Recipient: Putri / Syarif)',
 
   // Tautan WA Konfirmasi
   whatsappContact: '6289651035509',
   whatsappContactDisplay: '0896-5103-5509',
 
   // Gambar-gambar
-  coverImageLeft: '/VSF02248.webp',
-  coverImageRight: '/VSF02248.webp',
+  coverImageLeft: '/gallery/bawah-2.webp',
+  coverImageRight: '/gallery/bawah-2.webp',
   coverImageMobile: '/cover-mobile-jeep.jpg',
   heroBg: '/WhatsApp Image 2026-10-27 at 20.56.08.png',
   quoteBg: '/VSF02391.webp',
   eventBg: '/event-bg.jpg',
   eventCardPhotos: [
     '/VSF01875.webp',
-    '/VSF01917.webp',
+    '/gallery/atas-3.webp',
     '/VSF02190.webp'
   ],
   galleryBg: '/WhatsApp Image 2026-10-27 at 21.17.18.png',
@@ -79,7 +79,7 @@ export const WEDDING_CONFIG = {
   greetingBg: '/WhatsApp Image 2026-10-27 at 21.17.18.png',
   giftBg: '/WhatsApp Image 2026-10-27 at 23.53.28.png',
   countdownBg: '/WhatsApp Image 2026-10-27 at 23.51.19.png',
-  closingBg: '/VSF01904.webp',
+  closingBg: '/gallery/atas-11.webp',
   ringsImage: '/images/rings.webp',
   daunAtas: '/images/daun-atas.webp',
   ornamenKanan: '/images/ornamen-kanan.webp',
@@ -92,31 +92,7 @@ export const WEDDING_CONFIG = {
   leafLayer5: '/images/Layer 5.webp',
   leafLayer6: '/images/Layer 6.webp',
   galleryImages: [
-    '/VSF01781.webp',
-    '/VSF01790.webp',
-    '/VSF01808.webp',
-    '/VSF01812.webp',
-    '/VSF01827.webp',
-    '/VSF01867.webp',
-    '/VSF01875.webp',
-    '/VSF01879.webp',
-    '/VSF01891.webp',
-    '/VSF01904.webp',
-    '/VSF01917.webp',
-    '/VSF01980.webp',
-    '/VSF02006.webp',
-    '/VSF02014.webp',
-    '/VSF02062.webp',
-    '/VSF02082.webp',
-    '/VSF02093.webp',
-    '/VSF02190.webp',
-    '/VSF02202.webp',
-    '/VSF02227.webp',
-    '/VSF02248.webp',
-    '/VSF02285.webp',
-    '/VSF02312.webp',
-    '/VSF02352.webp',
-    '/VSF02369.webp',
-    '/VSF02376.webp'
+    ...Array.from({ length: 13 }, (_, i) => `/gallery/atas-${i + 1}.webp`),
+    ...Array.from({ length: 13 }, (_, i) => `/gallery/bawah-${i + 1}.webp`)
   ]
 };

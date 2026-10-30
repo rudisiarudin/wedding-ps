@@ -33,6 +33,15 @@ import { Reveal } from './components/Reveal';
 import Lottie from 'lottie-react';
 import { supabase } from './lib/supabase';
 
+const DEFAULT_GUEST_NAME = 'Honored Guest';
+
+// Values stay in Indonesian because they are stored in the database and read by Admin.
+const RSVP_LABELS: Record<'Hadir' | 'Tidak Hadir' | 'Masih Ragu', string> = {
+  'Hadir': 'Attending',
+  'Tidak Hadir': 'Absent',
+  'Masih Ragu': 'Maybe'
+};
+
 // --- Types ---
 interface Wish {
   id: string;
@@ -194,7 +203,7 @@ const GiftModal = () => {
 
     if (success) {
       setCopiedKey(key);
-      setToastText(`${label} berhasil disalin!`);
+      setToastText(`${label} copied`);
       setTimeout(() => {
         setCopiedKey(null);
         setToastText(null);
@@ -253,13 +262,13 @@ const GiftModal = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => copyToClipboard(WEDDING_CONFIG.bankAccountToCopy2, 'bca_putri', 'Nomor Rekening Putri')}
+                  onClick={() => copyToClipboard(WEDDING_CONFIG.bankAccountToCopy2, 'bca_putri', "Putri's account number")}
                   className={`w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0 ml-2 transition-all ${
                     copiedKey === 'bca_putri'
                       ? 'bg-[#54543E] scale-105 shadow-md'
                       : 'bg-[#9B9879] hover:bg-[#4D342D]'
                   } text-white`}
-                  title="Salin Rekening"
+                  title="Copy account number"
                 >
                   {copiedKey === 'bca_putri' ? <Check size={15} className="text-white" /> : <Copy size={14} className="text-white" />}
                 </button>
@@ -278,13 +287,13 @@ const GiftModal = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => copyToClipboard(WEDDING_CONFIG.bankAccountToCopy, 'bca_syarif', 'Nomor Rekening Syarif')}
+                  onClick={() => copyToClipboard(WEDDING_CONFIG.bankAccountToCopy, 'bca_syarif', "Syarif's account number")}
                   className={`w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0 ml-2 transition-all ${
                     copiedKey === 'bca_syarif'
                       ? 'bg-[#54543E] scale-105 shadow-md'
                       : 'bg-[#9B9879] hover:bg-[#4D342D]'
                   } text-white`}
-                  title="Salin Rekening"
+                  title="Copy account number"
                 >
                   {copiedKey === 'bca_syarif' ? <Check size={15} className="text-white" /> : <Copy size={14} className="text-white" />}
                 </button>
@@ -306,13 +315,13 @@ const GiftModal = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => copyToClipboard(WEDDING_CONFIG.physicalGiftAddress, 'address', 'Alamat Pengiriman')}
+                  onClick={() => copyToClipboard(WEDDING_CONFIG.physicalGiftAddress, 'address', 'Shipping address')}
                   className={`w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0 ml-2 transition-all ${
                     copiedKey === 'address'
                       ? 'bg-[#54543E] scale-105 shadow-md'
                       : 'bg-[#9B9879] hover:bg-[#4D342D]'
                   } text-white`}
-                  title="Salin Alamat"
+                  title="Copy address"
                 >
                   {copiedKey === 'address' ? <Check size={15} className="text-white" /> : <Copy size={14} className="text-white" />}
                 </button>
@@ -350,7 +359,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const displayName = guestName !== 'Tamu Undangan' ? guestName : '';
+  const displayName = guestName !== DEFAULT_GUEST_NAME ? guestName : '';
   const hasSubmitted = wishes.some(w => w.name.toLowerCase() === displayName.toLowerCase());
 
   useEffect(() => {
@@ -421,7 +430,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
       }
     } catch (err) {
       console.error('Error submitting wish:', err);
-      alert(`Gagal mengirim ucapan. Silakan coba lagi. Detail Error: ${(err as Error).message || 'Koneksi gagal/Database tidak ditemukan.'}`);
+      alert(`Your wish could not be sent. Please try again. Error: ${(err as Error).message || 'Connection failed or database not found.'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -434,7 +443,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
         <div className="max-w-md mx-auto py-8 px-4">
           <div className="vintage-form-card p-8 text-center space-y-4">
              <div className="flex justify-center text-[#DDCCB7]/60"><Lock size={28} /></div>
-             <p className="serif-font italic text-[13px] text-[#DDCCB7]/80">Halaman ini tertutup untuk umum.</p>
+             <p className="serif-font italic text-[13px] text-[#DDCCB7]/80">The guest book is open to invited guests only.</p>
           </div>
         </div>
       ) : isLoading ? (
@@ -470,10 +479,10 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.6 }}
               >
-                <p className="cinzel-font text-[10px] uppercase tracking-[0.4em] text-[#DDCCB7] font-semibold mb-2">Terkirim</p>
-                <h3 className="italiana-font text-3xl text-[#EDE7DB] mb-4">Terima Kasih</h3>
+                <p className="cinzel-font text-[10px] uppercase tracking-[0.4em] text-[#DDCCB7] font-semibold mb-2">Sent</p>
+                <h3 className="italiana-font text-3xl text-[#EDE7DB] mb-4">Thank You</h3>
                 <p className="serif-font italic text-[14px] text-[#DDCCB7]/90 max-w-[280px] leading-relaxed">
-                  Pesan dan doa restu Anda telah kami terima. Kehadiran Anda adalah kebahagiaan bagi kami.
+                  We have received your message and prayers. Your presence means a great deal to us.
                 </p>
               </motion.div>
             </div>
@@ -496,7 +505,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
                 <Mail size={16} className="text-[#DDCCB7]" />
                 <div className="w-6 h-[0.5px] bg-[#DDCCB7]/40" />
               </div>
-              <p className="cinzel-font text-[10px] uppercase tracking-[0.4em] text-[#DDCCB7] font-semibold">Tulis Pesan Anda</p>
+              <p className="cinzel-font text-[10px] uppercase tracking-[0.4em] text-[#DDCCB7] font-semibold">Write Your Message</p>
             </div>
 
             <div className="space-y-5">
@@ -504,7 +513,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
               <div className="space-y-2">
                 <label className="cinzel-font text-[9px] uppercase tracking-[0.3em] text-[#DDCCB7] font-semibold flex items-center gap-2">
                   <User size={12} className="text-[#DDCCB7]" />
-                  Nama Tamu
+                  Guest Name
                 </label>
                 <input
                   type="text"
@@ -524,7 +533,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   className="w-full bg-white text-[#4D342D] border border-[#DDCCB7]/60 rounded-[8px] p-3 text-[13px] font-serif resize-none min-h-[110px] shadow-sm outline-none focus:ring-2 focus:ring-[#DDCCB7] placeholder:italic placeholder:text-[#9B9879]/70"
-                  placeholder="Tulis doa dan harapan terbaik..."
+                  placeholder="Write your prayers and wishes for us..."
                   required
                 />
               </div>
@@ -548,7 +557,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
                           : "bg-black/20 text-[#DDCCB7] border-[#DDCCB7]/40 hover:border-[#DDCCB7] hover:bg-black/30"
                       )}
                     >
-                      {opt === 'Tidak Hadir' ? 'Absen' : opt === 'Masih Ragu' ? 'Ragu' : opt}
+                      {RSVP_LABELS[opt]}
                     </button>
                   ))}
                 </div>
@@ -608,12 +617,12 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
         {isLoading ? (
           <div className="py-16 text-center space-y-3">
             <div className="w-8 h-8 border-2 border-[#DDCCB7] border-t-[#9B9879] rounded-full animate-spin mx-auto" />
-            <p className="cinzel-font text-[9px] uppercase tracking-[0.3em] text-[#9B9879]/70">Memuat...</p>
+            <p className="cinzel-font text-[9px] uppercase tracking-[0.3em] text-[#9B9879]/70">Loading...</p>
           </div>
         ) : wishes.length === 0 ? (
           <div className="py-16 text-center opacity-60">
             <BookOpen className="mx-auto mb-3 text-[#9B9879]" size={24} />
-            <p className="serif-font italic text-[13px] text-[#4D342D]">Jadilah yang pertama memberikan doa.</p>
+            <p className="serif-font italic text-[13px] text-[#4D342D]">Be the first to leave a wish.</p>
           </div>
         ) : (
           <div className="max-w-md mx-auto relative">
@@ -648,7 +657,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
                         <div className="flex items-baseline justify-between gap-2">
                           <h4 className="cinzel-font text-[12px] font-semibold text-[#4D342D] truncate">{wish.name}</h4>
                           <span className="cinzel-font text-[8px] text-[#9B9879]/70 tracking-wider whitespace-nowrap flex-shrink-0">
-                            {wish.timestamp.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                            {wish.timestamp.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                           </span>
                         </div>
                         <p className="serif-font text-[#4D342D]/85 text-[13px] leading-relaxed mt-1.5 italic">
@@ -831,7 +840,7 @@ const Countdown = ({ targetDate, className }: { targetDate: string; className?: 
 const EventCardPhotoSlideshow = () => {
   const photos = WEDDING_CONFIG.eventCardPhotos || [
     '/VSF01875.webp',
-    '/VSF01917.webp',
+    '/gallery/atas-3.webp',
     '/VSF02190.webp'
   ];
   const [photoIndex, setPhotoIndex] = useState(0);
@@ -970,7 +979,7 @@ const DesktopSidebar = ({ guestName, isOpen, onOpen }: { guestName: string; isOp
           transition={{ duration: 1.2, delay: 6.0, ease: "easeOut" }}
           className="outfit-font text-[10.5px] md:text-xs uppercase tracking-[0.25em] font-medium text-white/95 mt-3"
         >
-          MINGGU, 22 NOVEMBER 2026
+          SUNDAY, 22 NOVEMBER 2026
         </motion.p>
       </div>
 
@@ -987,10 +996,10 @@ const DesktopSidebar = ({ guestName, isOpen, onOpen }: { guestName: string; isOp
             >
               <div className="space-y-1">
                 <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 6.4, duration: 1 }} className="serif-font text-sm md:text-base italic text-white/85">Dear,</motion.p>
-                <motion.p initial={{ opacity: 0, scale: 0.9, filter: "blur(4px)" }} animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }} transition={{ delay: 6.6, duration: 1, ease: "easeOut" }} className="outfit-font text-2xl md:text-3xl font-normal text-white tracking-wide">{guestName || "Tamu Undangan"}</motion.p>
+                <motion.p initial={{ opacity: 0, scale: 0.9, filter: "blur(4px)" }} animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }} transition={{ delay: 6.6, duration: 1, ease: "easeOut" }} className="outfit-font text-2xl md:text-3xl font-normal text-white tracking-wide">{guestName || DEFAULT_GUEST_NAME}</motion.p>
               </div>
               <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 6.8, duration: 1 }} className="serif-font text-[11.5px] md:text-xs italic text-white/80 max-w-[290px] leading-relaxed">
-                Tanpa mengurangi rasa hormat, mohon maaf bila ada kesalahan penulisan nama/gelar.
+                We apologize if your name or title is written incorrectly.
               </motion.p>
               <motion.button
                 initial={{ opacity: 0, y: 15 }}
@@ -1024,7 +1033,7 @@ const App = () => {
   const [isPreloading, setIsPreloading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [guestName, setGuestName] = useState('Tamu Undangan');
+  const [guestName, setGuestName] = useState(DEFAULT_GUEST_NAME);
   const [currentGalleryIndex, setCurrentGalleryIndex] = useState(0);
   const [selectedGalleryImage, setSelectedGalleryImage] = useState<number | null>(null);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
@@ -1456,7 +1465,7 @@ const App = () => {
                       transition={{ delay: 0.6, duration: 1 }}
                       className="outfit-font tracking-[0.25em] uppercase text-[10px] sm:text-[11px] text-[#EDE7DB] font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
                     >
-                      MINGGU, 22 NOVEMBER 2026
+                      SUNDAY, 22 NOVEMBER 2026
                     </motion.p>
                   </div>
 
@@ -1471,10 +1480,10 @@ const App = () => {
                     >
                       <p className="serif-font italic text-[13px] text-[#EDE7DB]/90 drop-shadow-sm">Dear,</p>
                       <p className="outfit-font text-[18px] sm:text-[20px] font-normal text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] tracking-wide">
-                        {guestName || "Tamu Undangan"}
+                        {guestName || DEFAULT_GUEST_NAME}
                       </p>
                       <p className="serif-font italic text-[10.5px] sm:text-[11.5px] text-[#EDE7DB]/85 max-w-[280px] leading-relaxed mt-0.5 drop-shadow-sm">
-                        Tanpa mengurangi rasa hormat, mohon maaf bila ada kesalahan penulisan nama/gelar.
+                        We apologize if your name or title is written incorrectly.
                       </p>
                     </motion.div>
 
@@ -1559,7 +1568,7 @@ const App = () => {
                         NOVEMBER 2026
                       </p>
                       <p className="text-[#9B9879] font-medium text-[8px] sm:text-[8.5px] tracking-[0.16em] leading-tight mt-1">
-                        08.30 WIB – SELESAI
+                        08.30 WIB ONWARDS
                       </p>
                     </div>
                   </div>
@@ -1571,7 +1580,7 @@ const App = () => {
                 <Reveal delay={0.6} y={15} duration={1.2}>
                   <div className="px-3">
                     <p className="serif-font text-[11.5px] sm:text-[13px] italic leading-[1.8] text-[#4D342D]/90">
-                      "Dan segala sesuatu Kami ciptakan berpasang-pasangan agar kamu mengingat (kebesaran Allah)."
+                      "And of all things We created two mates; perhaps you will remember."
                     </p>
                     <div className="flex items-center justify-center gap-2.5 my-2.5 text-[#9B9879]/50">
                       <div className="h-[0.5px] w-8 bg-[#9B9879]/40" />
@@ -1579,7 +1588,7 @@ const App = () => {
                       <div className="h-[0.5px] w-8 bg-[#9B9879]/40" />
                     </div>
                     <p className="outfit-font text-[8.5px] sm:text-[9.5px] tracking-[0.28em] uppercase text-[#6A6A53] font-bold">
-                      QS. ADZ ZARIYAT : 49
+                      QS. ADH-DHARIYAT : 49
                     </p>
                   </div>
                 </Reveal>
@@ -1646,7 +1655,7 @@ const App = () => {
                         NOVEMBER 2026
                       </p>
                       <p className="text-[#9B9879] font-medium text-[8.5px] md:text-[9px] tracking-[0.16em] leading-tight mt-1">
-                        08.30 WIB – SELESAI
+                        08.30 WIB ONWARDS
                       </p>
                     </div>
                   </div>
@@ -1658,7 +1667,7 @@ const App = () => {
                 <Reveal delay={0.6} y={15} duration={1.2}>
                   <div className="px-4">
                     <p className="serif-font text-[12px] md:text-[13.5px] italic leading-[1.8] text-[#4D342D]/90">
-                      "Dan segala sesuatu Kami ciptakan berpasang-pasangan agar kamu mengingat (kebesaran Allah)."
+                      "And of all things We created two mates; perhaps you will remember."
                     </p>
                     <div className="flex items-center justify-center gap-2.5 my-2.5 text-[#9B9879]/50">
                       <div className="h-[0.5px] w-8 bg-[#9B9879]/40" />
@@ -1666,7 +1675,7 @@ const App = () => {
                       <div className="h-[0.5px] w-8 bg-[#9B9879]/40" />
                     </div>
                     <p className="outfit-font text-[8.5px] md:text-[9.5px] tracking-[0.28em] uppercase text-[#6A6A53] font-bold">
-                      QS. ADZ ZARIYAT : 49
+                      QS. ADH-DHARIYAT : 49
                     </p>
                   </div>
                 </Reveal>
@@ -1710,7 +1719,7 @@ const App = () => {
 
               <Reveal delay={0.5} y={20} duration={2}>
                 <p className="serif-font text-[12px] sm:text-[14.5px] italic leading-[2] sm:leading-[1.9] text-[#EDE7DB] drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] max-w-3xl mx-auto px-2">
-                  "Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang. Sungguh, pada yang demikian itu benar-benar terdapat tanda-tanda (kebesaran Allah) bagi kaum yang berpikir"
+                  "And of His signs is that He created for you from yourselves mates that you may find tranquillity in them; and He placed between you affection and mercy. Indeed in that are signs for a people who give thought."
                 </p>
               </Reveal>
 
@@ -1758,7 +1767,7 @@ const App = () => {
 
                 <Reveal delay={0.6} y={10} duration={1.5}>
                   <p className="serif-font text-[12.5px] md:text-[16px] lg:text-[12.5px] leading-[1.8] text-[#4D342D]/85 italic text-center max-w-[340px] mx-auto">
-                    Dengan memohon rahmat dan ridho Allah SWT. Kami bermaksud mengundang Bapak/Ibu/Saudara/i untuk menghadiri acara pernikahan kami.
+                    Seeking the grace and blessings of Allah SWT, we request the honor of your presence at our wedding.
                   </p>
                 </Reveal>
               </div>
@@ -1845,7 +1854,7 @@ const App = () => {
                         </div>
 
                         <div className="mt-6 md:mt-8 flex flex-col gap-1 md:gap-2">
-                          <p className="outfit-font text-[9px] md:text-[12px] lg:text-[9px] text-[#DDCCB7]/70 tracking-[0.2em] font-bold uppercase">Putri Pertama</p>
+                          <p className="outfit-font text-[9px] md:text-[12px] lg:text-[9px] text-[#DDCCB7]/70 tracking-[0.2em] font-bold uppercase">First Daughter of</p>
                           <p className="serif-font text-[11.5px] md:text-[15px] lg:text-[11.5px] text-white italic leading-[1.8] px-1">
                             {WEDDING_CONFIG.brideParents}
                           </p>
@@ -1875,7 +1884,7 @@ const App = () => {
                         </div>
 
                         <div className="mt-6 md:mt-8 flex flex-col gap-1 md:gap-2">
-                          <p className="outfit-font text-[9px] md:text-[12px] lg:text-[9px] text-[#DDCCB7]/70 tracking-[0.2em] font-bold uppercase">Putra Keenam</p>
+                          <p className="outfit-font text-[9px] md:text-[12px] lg:text-[9px] text-[#DDCCB7]/70 tracking-[0.2em] font-bold uppercase">Sixth Son of</p>
                           <p className="serif-font text-[11.5px] md:text-[15px] lg:text-[11.5px] text-white italic leading-[1.8] px-1">
                             {WEDDING_CONFIG.groomParents}
                           </p>
@@ -1938,7 +1947,7 @@ const App = () => {
                   <div className="relative z-10 flex flex-col items-center">
                     {/* Day Name */}
                     <p className="italiana-font text-[28px] sm:text-[34px] text-[#EDE7DB] font-normal leading-tight tracking-wide">
-                      Minggu
+                      Sunday
                     </p>
 
                     {/* Day Number */}
@@ -1964,20 +1973,20 @@ const App = () => {
                     {/* Akad Nikah */}
                     <div className="space-y-1">
                       <p className="outfit-font text-[10.5px] sm:text-[11.5px] tracking-[0.32em] uppercase text-[#EDE7DB] font-normal">
-                        AKAD NIKAH
+                        WEDDING CEREMONY
                       </p>
                       <p className="serif-font italic text-[12.5px] sm:text-[13.5px] text-[#DDCCB7] mt-0.5">
-                        Pukul {WEDDING_CONFIG.akadTime}
+                        {WEDDING_CONFIG.akadTime}
                       </p>
                     </div>
 
                     {/* Resepsi */}
                     <div className="space-y-1 mt-4 sm:mt-5">
                       <p className="outfit-font text-[10.5px] sm:text-[11.5px] tracking-[0.32em] uppercase text-[#EDE7DB] font-normal">
-                        RESEPSI
+                        RECEPTION
                       </p>
                       <p className="serif-font italic text-[12.5px] sm:text-[13.5px] text-[#DDCCB7] mt-0.5">
-                        Pukul {WEDDING_CONFIG.resepsiTime}
+                        {WEDDING_CONFIG.resepsiTime}
                       </p>
                     </div>
 
@@ -1997,7 +2006,7 @@ const App = () => {
                         {WEDDING_CONFIG.akadLocationName}
                       </h3>
                       <p className="serif-font italic text-[11px] sm:text-[12px] text-[#DDCCB7] max-w-xs mx-auto leading-relaxed mt-0.5">
-                        Sukatani, Kec. Pacet, Kab. Cianjur,<br />Jawa Barat 43253
+                        Sukatani, Pacet, Cianjur,<br />West Java 43253
                       </p>
                     </div>
 
@@ -2024,17 +2033,17 @@ const App = () => {
                           const endDate = new Date(startDate.getTime() + 4 * 60 * 60 * 1000); // 4 jam kemudian
                           const toGCalUTC = (d: Date) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
                           const event = {
-                            title: "Pernikahan Syarif & Putri",
+                            title: "Wedding of Putri & Syarif",
                             start: toGCalUTC(startDate),
                             end: toGCalUTC(endDate),
                             location: WEDDING_CONFIG.akadLocationName,
-                            description: "Mohon doa restu atas pernikahan kami."
+                            description: "We kindly ask for your prayers and blessings for our wedding."
                           };
                           window.open(`https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${event.start}/${event.end}&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(event.location)}`, '_blank');
                         }}
                         className="w-full rounded-full bg-transparent hover:bg-white/10 text-[#EDE7DB] border border-[#DDCCB7]/70 py-3.5 px-6 font-semibold tracking-[0.25em] text-[10px] uppercase transition-all block text-center cursor-pointer"
                       >
-                        SIMPAN TANGGAL
+                        ADD TO CALENDAR
                       </motion.button>
                     </div>
                   </div>
@@ -2082,7 +2091,7 @@ const App = () => {
 
                   {/* Subtitle */}
                   <p className="serif-font italic font-normal text-xs sm:text-[13.5px] text-[#DDCCB7]/90 leading-relaxed max-w-md mx-auto mb-7 sm:mb-9">
-                    Menghitung hari menuju ikatan janji suci pernikahan kami
+                    Counting the days until we make our vows
                   </p>
                 </div>
               </Reveal>
@@ -2178,7 +2187,7 @@ const App = () => {
                       transition={{ duration: 0.8, delay: 0.15 }}
                       className="outfit-font text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-[#9B9879] font-medium mb-1"
                     >
-                      AKHIR DESEMBER 2016
+                      LATE DECEMBER 2016
                     </motion.p>
                     <motion.h3
                       initial={{ opacity: 0, filter: "blur(4px)" }}
@@ -2187,7 +2196,7 @@ const App = () => {
                       transition={{ duration: 1, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
                       className="italiana-font text-[24px] sm:text-[27px] text-[#4D342D] leading-tight mb-2.5 font-normal"
                     >
-                      Titik Awal
+                      Where It Began
                     </motion.h3>
                     <motion.p
                       initial={{ opacity: 0, y: 8 }}
@@ -2196,7 +2205,7 @@ const App = () => {
                       transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
                       className="serif-font text-[12px] sm:text-[13px] text-[#4D342D]/80 leading-[1.8] text-left"
                     >
-                      Semua bermula dari sebuah perkenalan sederhana di penghujung tahun 2016. Berkat perantara seorang teman, jalan takdir mempertemukan kami untuk pertama kalinya.
+                      It all started with a simple introduction at the end of 2016. Through a friend, fate brought us together for the first time.
                     </motion.p>
                   </motion.div>
                 </div>
@@ -2229,7 +2238,7 @@ const App = () => {
                       transition={{ duration: 0.8, delay: 0.15 }}
                       className="outfit-font text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-[#9B9879] font-medium mb-1"
                     >
-                      14 JUNI 2026
+                      14 JUNE 2026
                     </motion.p>
                     <motion.h3
                       initial={{ opacity: 0, filter: "blur(4px)" }}
@@ -2238,7 +2247,7 @@ const App = () => {
                       transition={{ duration: 1, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
                       className="italiana-font text-[24px] sm:text-[27px] text-[#4D342D] leading-tight mb-2.5 font-normal"
                     >
-                      Mengikat Janji
+                      Making a Promise
                     </motion.h3>
                     <motion.p
                       initial={{ opacity: 0, y: 8 }}
@@ -2247,7 +2256,7 @@ const App = () => {
                       transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
                       className="serif-font text-[12px] sm:text-[13px] text-[#4D342D]/80 leading-[1.8] text-left"
                     >
-                      Waktu telah menguji, dan keyakinan telah berbicara. Setelah bertahun-tahun membersamai dalam suka dan duka, kami memutuskan untuk melangkah ke jenjang yang lebih serius.
+                      Time put us to the test, and we grew sure of each other. After years together through good times and hard ones, we decided to take a more serious step.
                     </motion.p>
                   </motion.div>
                 </div>
@@ -2289,7 +2298,7 @@ const App = () => {
                       transition={{ duration: 1, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
                       className="italiana-font text-[24px] sm:text-[27px] text-[#4D342D] leading-tight mb-2.5 font-normal"
                     >
-                      Menuju Selamanya
+                      Toward Forever
                     </motion.h3>
                     <motion.p
                       initial={{ opacity: 0, y: 8 }}
@@ -2298,7 +2307,7 @@ const App = () => {
                       transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
                       className="serif-font text-[12px] sm:text-[13px] text-[#4D342D]/80 leading-[1.8] text-left"
                     >
-                      Kini, penantian panjang itu sampai pada puncaknya. Dengan izin dan ridha-Nya, babak terindah dalam hidup kami akan segera dimulai.
+                      Now the long wait is over. With His permission and blessing, the most beautiful chapter of our lives is about to begin.
                     </motion.p>
                   </motion.div>
                 </div>
@@ -2439,7 +2448,7 @@ const App = () => {
 
               <Reveal delay={0.6} y={15} duration={1.5}>
                 <p className="sans-font text-[12px] text-[#EDE7DB]/95 mb-10 md:mb-12 leading-relaxed italic px-2 max-w-lg mx-auto drop-shadow-sm">
-                  Apabila Bapak/Ibu/Saudara/i ingin mengirimkan hadiah tanda kasih, dapat melalui tautan di bawah ini.
+                  If you would like to send a gift, you can use the details below.
                 </p>
               </Reveal>
 
@@ -2487,7 +2496,7 @@ const App = () => {
                   </div>
 
                   <p className="serif-font italic text-[13px] text-[#4D342D]/75 leading-relaxed">
-                    Berikan doa dan harapan terbaik untuk kami berdua
+                    Share your prayers and wishes for the two of us
                   </p>
                 </div>
               </Reveal>
@@ -2531,7 +2540,7 @@ const App = () => {
                   </div>
                 </Reveal>
                 <Reveal delay={0.2} y={30} duration={1.5}>
-                  <h3 className="italiana-font text-4xl md:text-5xl lg:text-4xl text-[#FFFFFF] drop-shadow-sm mb-6 leading-tight">Do'a Untuk Pengantin</h3>
+                  <h3 className="italiana-font text-4xl md:text-5xl lg:text-4xl text-[#FFFFFF] drop-shadow-sm mb-6 leading-tight">A Prayer for the Couple</h3>
                 </Reveal>
                 <Reveal delay={0.4} scale={0.5} duration={1}>
                   <div className="flex items-center justify-center gap-4">
@@ -2550,12 +2559,12 @@ const App = () => {
                 </Reveal>
                 <Reveal delay={0.6} y={20} duration={2}>
                   <p className="serif-font text-sm text-white/90 italic leading-relaxed md:leading-loose">
-                    "Semoga Allah memberkahimu dan memberkahi apa yang menjadi tanggung jawabmu, serta menyatukan kalian berdua dalam kebaikan."
+                    "May Allah bless you, shower His blessings upon you, and unite you both in goodness."
                   </p>
                 </Reveal>
                 <Reveal delay={1} y={10} duration={1.5}>
                   <p className="outfit-font text-[10px] text-[#DDCCB7]/80 tracking-widest uppercase">
-                    (HR. Ahmad, at-Tirmidzi, dan an-Nasa'i)
+                    (Narrated by Ahmad, at-Tirmidhi, and an-Nasa'i)
                   </p>
                 </Reveal>
               </div>
@@ -2564,10 +2573,10 @@ const App = () => {
 
           {/* Closing Section — Cinematic Fullscreen Background (Matched to User Reference Image) */}
           <section id="closing" className="relative min-h-screen flex flex-col justify-end items-center text-center px-6 pt-24 pb-12 sm:pb-14 overflow-hidden">
-            {/* Background Photo: VSF01904.webp */}
+            {/* Background Photo: gallery/atas-11.webp */}
             <div className="absolute inset-0 z-0 overflow-hidden">
               <img
-                src={WEDDING_CONFIG.closingBg || "/VSF01904.webp"}
+                src={WEDDING_CONFIG.closingBg || "/gallery/atas-11.webp"}
                 alt="Putri & Syarif"
                 className="w-full h-full object-cover object-[center_24%]"
               />
@@ -2579,17 +2588,17 @@ const App = () => {
 
             {/* Content Container (Positioned in lower half over the road/lower photo) */}
             <div className="relative z-10 max-w-lg mx-auto flex flex-col items-center text-center">
-              {/* Terima Kasih */}
+              {/* Thank You */}
               <Reveal delay={0.2} y={15} duration={1.2}>
                 <h2 className="italiana-font text-[28px] sm:text-[33px] md:text-[36px] text-white font-normal tracking-[0.03em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-3">
-                  Terima Kasih
+                  Thank You
                 </h2>
               </Reveal>
 
               {/* Narrative Thank You Message */}
               <Reveal delay={0.4} y={15} duration={1.3}>
                 <p className="outfit-font text-[10px] sm:text-[11.5px] md:text-[12px] text-white/90 leading-[1.85] font-light max-w-[320px] sm:max-w-[360px] mx-auto mb-3.5 sm:mb-4 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)] px-1">
-                  Merupakan suatu kehormatan dan kebahagiaan bagi kami beserta keluarga apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu kepada kedua mempelai.
+                  It would be an honor and a joy for us and our families if you could attend and give your blessings to the bride and groom.
                 </p>
               </Reveal>
 
@@ -2600,10 +2609,10 @@ const App = () => {
                 </p>
               </Reveal>
 
-              {/* Subtitle: KAMI YANG BERBAHAGIA */}
+              {/* Subtitle: THE HAPPY COUPLE */}
               <Reveal delay={0.8} y={10} duration={1.2}>
                 <p className="outfit-font text-[8.5px] sm:text-[9.5px] uppercase tracking-[0.5em] text-white/75 font-light mb-2.5 sm:mb-3 drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
-                  KAMI YANG BERBAHAGIA
+                  THE HAPPY COUPLE
                 </p>
               </Reveal>
 
@@ -2621,7 +2630,7 @@ const App = () => {
             <Reveal delay={0.1} y={10} duration={1.2}>
               <div className="flex flex-col items-center justify-center space-y-1.5 max-w-sm mx-auto">
                 <p className="outfit-font text-[8.5px] uppercase tracking-[0.35em] text-[#DDCCB7]/60 font-medium">
-                  Dibuat dengan Cinta oleh
+                  Made with love by
                 </p>
                 <p className="italiana-font text-[18px] sm:text-[20px] text-[#EDE7DB] tracking-wide font-normal">
                   IT Palugada
