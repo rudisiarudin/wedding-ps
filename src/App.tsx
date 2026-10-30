@@ -32,15 +32,7 @@ import { WEDDING_CONFIG } from './config';
 import { Reveal } from './components/Reveal';
 import Lottie from 'lottie-react';
 import { supabase } from './lib/supabase';
-
-const DEFAULT_GUEST_NAME = 'Honored Guest';
-
-// Values stay in Indonesian because they are stored in the database and read by Admin.
-const RSVP_LABELS: Record<'Hadir' | 'Tidak Hadir' | 'Masih Ragu', string> = {
-  'Hadir': 'Attending',
-  'Tidak Hadir': 'Absent',
-  'Masih Ragu': 'Maybe'
-};
+import { useLanguage, LanguageSwitcher } from './lib/i18n';
 
 // --- Types ---
 interface Wish {
@@ -55,14 +47,15 @@ interface Wish {
 // --- Components ---
 
 const FloatingNav = () => {
+  const { t } = useLanguage();
   const [activeSection, setActiveSection] = useState('hero');
   const [isClosingInView, setIsClosingInView] = useState(false);
   const navItems = [
-    { icon: <Home size={18} />, label: 'Home', id: 'hero' },
-    { icon: <Heart size={18} />, label: 'Couple', id: 'profile' },
-    { icon: <Calendar size={18} />, label: 'Event', id: 'event' },
-    { icon: <Camera size={18} />, label: 'Gallery', id: 'gallery' },
-    { icon: <MessageSquare size={18} />, label: 'Wish', id: 'wishes' },
+    { icon: <Home size={18} />, label: t.nav.home, id: 'hero' },
+    { icon: <Heart size={18} />, label: t.nav.couple, id: 'profile' },
+    { icon: <Calendar size={18} />, label: t.nav.event, id: 'event' },
+    { icon: <Camera size={18} />, label: t.nav.gallery, id: 'gallery' },
+    { icon: <MessageSquare size={18} />, label: t.nav.wishes, id: 'wishes' },
   ];
 
   useEffect(() => {
@@ -164,6 +157,7 @@ const FloatingNav = () => {
 };
 
 const GiftModal = () => {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [toastText, setToastText] = useState<string | null>(null);
@@ -203,7 +197,7 @@ const GiftModal = () => {
 
     if (success) {
       setCopiedKey(key);
-      setToastText(`${label} copied`);
+      setToastText(t.gift.copiedToast(label));
       setTimeout(() => {
         setCopiedKey(null);
         setToastText(null);
@@ -224,7 +218,7 @@ const GiftModal = () => {
             onClick={() => setIsOpen(true)}
             className="px-9 py-3.5 bg-white text-[#4D342D] hover:bg-white/90 border border-white/60 rounded-full font-serif text-[12px] font-semibold tracking-widest uppercase transition-all shadow-[0_10px_25px_-5px_rgba(0,0,0,0.25)] hover:shadow-[0_14px_30px_-5px_rgba(0,0,0,0.35)] hover:-translate-y-0.5 active:translate-y-0 relative z-10"
           >
-            SEND GIFT
+            {t.gift.sendGiftBtn}
           </motion.button>
         ) : (
           <motion.div
@@ -262,13 +256,13 @@ const GiftModal = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => copyToClipboard(WEDDING_CONFIG.bankAccountToCopy2, 'bca_putri', "Putri's account number")}
+                  onClick={() => copyToClipboard(WEDDING_CONFIG.bankAccountToCopy2, 'bca_putri', t.gift.putriAccLabel)}
                   className={`w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0 ml-2 transition-all ${
                     copiedKey === 'bca_putri'
                       ? 'bg-[#54543E] scale-105 shadow-md'
                       : 'bg-[#9B9879] hover:bg-[#4D342D]'
                   } text-white`}
-                  title="Copy account number"
+                  title={t.gift.copyAccount}
                 >
                   {copiedKey === 'bca_putri' ? <Check size={15} className="text-white" /> : <Copy size={14} className="text-white" />}
                 </button>
@@ -287,13 +281,13 @@ const GiftModal = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => copyToClipboard(WEDDING_CONFIG.bankAccountToCopy, 'bca_syarif', "Syarif's account number")}
+                  onClick={() => copyToClipboard(WEDDING_CONFIG.bankAccountToCopy, 'bca_syarif', t.gift.syarifAccLabel)}
                   className={`w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0 ml-2 transition-all ${
                     copiedKey === 'bca_syarif'
                       ? 'bg-[#54543E] scale-105 shadow-md'
                       : 'bg-[#9B9879] hover:bg-[#4D342D]'
                   } text-white`}
-                  title="Copy account number"
+                  title={t.gift.copyAccount}
                 >
                   {copiedKey === 'bca_syarif' ? <Check size={15} className="text-white" /> : <Copy size={14} className="text-white" />}
                 </button>
@@ -306,22 +300,23 @@ const GiftModal = () => {
                     <Gift size={18} className="text-[#9B9879]" />
                   </div>
                   <div className="flex flex-col text-left">
-                    <p className="text-[#4D342D] font-bold text-[13px] tracking-wide mb-1">Send Gift</p>
+                    <p className="text-[#4D342D] font-bold text-[13px] tracking-wide mb-1">{t.gift.title}</p>
                     <p className="text-[#4D342D]/80 text-[11px] leading-relaxed max-w-[190px]">
                       Putri & Syarif<br/>
-                      {WEDDING_CONFIG.physicalGiftAddress}
+                      {WEDDING_CONFIG.physicalGiftAddress}<br/>
+                      <span className="text-[10px] text-[#9B9879]">{t.gift.recipient}</span>
                     </p>
                   </div>
                 </div>
                 <button
                   type="button"
-                  onClick={() => copyToClipboard(WEDDING_CONFIG.physicalGiftAddress, 'address', 'Shipping address')}
+                  onClick={() => copyToClipboard(WEDDING_CONFIG.physicalGiftAddress, 'address', t.gift.addressLabel)}
                   className={`w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0 ml-2 transition-all ${
                     copiedKey === 'address'
                       ? 'bg-[#54543E] scale-105 shadow-md'
                       : 'bg-[#9B9879] hover:bg-[#4D342D]'
                   } text-white`}
-                  title="Copy address"
+                  title={t.gift.copyAddress}
                 >
                   {copiedKey === 'address' ? <Check size={15} className="text-white" /> : <Copy size={14} className="text-white" />}
                 </button>
@@ -353,13 +348,15 @@ const GiftModal = () => {
 
 
 const Guestbook = ({ guestName }: { guestName: string }) => {
+  const { t } = useLanguage();
   const [wishes, setWishes] = useState<Wish[]>([]);
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<'Hadir' | 'Tidak Hadir' | 'Masih Ragu'>('Hadir');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const displayName = guestName !== DEFAULT_GUEST_NAME ? guestName : '';
+  const defaultGuest = t.cover.defaultGuest;
+  const displayName = guestName && guestName !== defaultGuest ? guestName : '';
   const hasSubmitted = wishes.some(w => w.name.toLowerCase() === displayName.toLowerCase());
 
   useEffect(() => {
@@ -430,7 +427,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
       }
     } catch (err) {
       console.error('Error submitting wish:', err);
-      alert(`Your wish could not be sent. Please try again. Error: ${(err as Error).message || 'Connection failed or database not found.'}`);
+      alert(t.wishes.errorSubmit((err as Error).message || 'Connection failed or database not found.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -443,7 +440,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
         <div className="max-w-md mx-auto py-8 px-4">
           <div className="vintage-form-card p-8 text-center space-y-4">
              <div className="flex justify-center text-[#DDCCB7]/60"><Lock size={28} /></div>
-             <p className="serif-font italic text-[13px] text-[#DDCCB7]/80">The guest book is open to invited guests only.</p>
+             <p className="serif-font italic text-[13px] text-[#DDCCB7]/80">{t.wishes.lockedMsg}</p>
           </div>
         </div>
       ) : isLoading ? (
@@ -479,10 +476,10 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.6 }}
               >
-                <p className="cinzel-font text-[10px] uppercase tracking-[0.4em] text-[#DDCCB7] font-semibold mb-2">Sent</p>
-                <h3 className="italiana-font text-3xl text-[#EDE7DB] mb-4">Thank You</h3>
+                <p className="cinzel-font text-[10px] uppercase tracking-[0.4em] text-[#DDCCB7] font-semibold mb-2">{t.wishes.sent}</p>
+                <h3 className="italiana-font text-3xl text-[#EDE7DB] mb-4">{t.wishes.thankYou}</h3>
                 <p className="serif-font italic text-[14px] text-[#DDCCB7]/90 max-w-[280px] leading-relaxed">
-                  We have received your message and prayers. Your presence means a great deal to us.
+                  {t.wishes.successMsg}
                 </p>
               </motion.div>
             </div>
@@ -505,7 +502,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
                 <Mail size={16} className="text-[#DDCCB7]" />
                 <div className="w-6 h-[0.5px] bg-[#DDCCB7]/40" />
               </div>
-              <p className="cinzel-font text-[10px] uppercase tracking-[0.4em] text-[#DDCCB7] font-semibold">Write Your Message</p>
+              <p className="cinzel-font text-[10px] uppercase tracking-[0.4em] text-[#DDCCB7] font-semibold">{t.wishes.writeMsg}</p>
             </div>
 
             <div className="space-y-5">
@@ -513,7 +510,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
               <div className="space-y-2">
                 <label className="cinzel-font text-[9px] uppercase tracking-[0.3em] text-[#DDCCB7] font-semibold flex items-center gap-2">
                   <User size={12} className="text-[#DDCCB7]" />
-                  Guest Name
+                  {t.wishes.guestNameLabel}
                 </label>
                 <input
                   type="text"
@@ -527,13 +524,13 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
               <div className="space-y-2">
                 <label className="cinzel-font text-[9px] uppercase tracking-[0.3em] text-[#DDCCB7] font-semibold flex items-center gap-2">
                   <BookOpen size={12} className="text-[#DDCCB7]" />
-                  Wedding Wishes
+                  {t.wishes.wishesFieldLabel}
                 </label>
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   className="w-full bg-white text-[#4D342D] border border-[#DDCCB7]/60 rounded-[8px] p-3 text-[13px] font-serif resize-none min-h-[110px] shadow-sm outline-none focus:ring-2 focus:ring-[#DDCCB7] placeholder:italic placeholder:text-[#9B9879]/70"
-                  placeholder="Write your prayers and wishes for us..."
+                  placeholder={t.wishes.placeholderMsg}
                   required
                 />
               </div>
@@ -542,29 +539,33 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
               <div className="space-y-2">
                 <label className="cinzel-font text-[9px] uppercase tracking-[0.3em] text-[#DDCCB7] font-semibold flex items-center gap-2">
                   <Heart size={12} className="text-[#DDCCB7]" />
-                  RSVP Confirmation
+                  {t.wishes.rsvpLabel}
                 </label>
                 <div className="flex gap-2">
-                  {(['Hadir', 'Tidak Hadir', 'Masih Ragu'] as const).map((opt) => (
+                  {([
+                    { key: 'Hadir', label: t.wishes.rsvpOptions.hadir },
+                    { key: 'Tidak Hadir', label: t.wishes.rsvpOptions.tidakHadir },
+                    { key: 'Masih Ragu', label: t.wishes.rsvpOptions.ragu },
+                  ] as const).map(({ key, label }) => (
                     <button
-                      key={opt}
+                      key={key}
                       type="button"
-                      onClick={() => setStatus(opt)}
+                      onClick={() => setStatus(key)}
                       className={cn(
                         "flex-1 py-2.5 rounded-full cinzel-font text-[9px] tracking-wider uppercase border transition-all duration-300 font-semibold",
-                        status === opt
+                        status === key
                           ? "bg-white text-[#4D342D] border-white shadow-md"
                           : "bg-black/20 text-[#DDCCB7] border-[#DDCCB7]/40 hover:border-[#DDCCB7] hover:bg-black/30"
                       )}
                     >
-                      {RSVP_LABELS[opt]}
+                      {label}
                     </button>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Submit button - WHITE BUTTON requested by user */}
+            {/* Submit button - WHITE BUTTON */}
             <div className="pt-7">
               <motion.button
                 disabled={isSubmitting || !displayName}
@@ -580,7 +581,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
                 ) : (
                   <>
                     <Send size={12} className="-rotate-12 text-[#4D342D]" />
-                    <span>Send Wish</span>
+                    <span>{t.wishes.sendBtn}</span>
                   </>
                 )}
               </motion.button>
@@ -595,7 +596,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
         <Reveal>
           <div className="flex items-center justify-center gap-3">
             <div className="w-8 h-[0.5px] bg-[#9B9879]/30" />
-            <p className="cinzel-font text-[9px] uppercase tracking-[0.4em] text-[#9B9879] font-semibold">Messages from Guests</p>
+            <p className="cinzel-font text-[9px] uppercase tracking-[0.4em] text-[#9B9879] font-semibold">{t.wishes.feedTag}</p>
             <div className="w-8 h-[0.5px] bg-[#9B9879]/30" />
           </div>
         </Reveal>
@@ -606,7 +607,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
         <Reveal y={5}>
           <div className="text-center pb-4">
             <p className="cinzel-font text-[9px] uppercase tracking-[0.3em] text-[#9B9879]/80 font-medium">
-              {wishes.length} Wedding Wishes
+              {t.wishes.wishesCount(wishes.length)}
             </p>
           </div>
         </Reveal>
@@ -617,12 +618,12 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
         {isLoading ? (
           <div className="py-16 text-center space-y-3">
             <div className="w-8 h-8 border-2 border-[#DDCCB7] border-t-[#9B9879] rounded-full animate-spin mx-auto" />
-            <p className="cinzel-font text-[9px] uppercase tracking-[0.3em] text-[#9B9879]/70">Loading...</p>
+            <p className="cinzel-font text-[9px] uppercase tracking-[0.3em] text-[#9B9879]/70">{t.wishes.loading}</p>
           </div>
         ) : wishes.length === 0 ? (
           <div className="py-16 text-center opacity-60">
             <BookOpen className="mx-auto mb-3 text-[#9B9879]" size={24} />
-            <p className="serif-font italic text-[13px] text-[#4D342D]">Be the first to leave a wish.</p>
+            <p className="serif-font italic text-[13px] text-[#4D342D]">{t.wishes.emptyWishes}</p>
           </div>
         ) : (
           <div className="max-w-md mx-auto relative">
@@ -657,7 +658,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
                         <div className="flex items-baseline justify-between gap-2">
                           <h4 className="cinzel-font text-[12px] font-semibold text-[#4D342D] truncate">{wish.name}</h4>
                           <span className="cinzel-font text-[8px] text-[#9B9879]/70 tracking-wider whitespace-nowrap flex-shrink-0">
-                            {wish.timestamp.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                            {wish.timestamp.toLocaleDateString(t.wishes.dateLocale, { day: 'numeric', month: 'short' })}
                           </span>
                         </div>
                         <p className="serif-font text-[#4D342D]/85 text-[13px] leading-relaxed mt-1.5 italic">
@@ -666,7 +667,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
 
                         {wish.reply && (
                           <div className="mt-3 pt-3 border-t border-dashed border-[#DDCCB7] pl-3 border-l-2 border-l-[#9B9879]">
-                            <p className="cinzel-font text-[8px] uppercase tracking-[0.25em] text-[#9B9879] mb-0.5">Couple's Reply</p>
+                            <p className="cinzel-font text-[8px] uppercase tracking-[0.25em] text-[#9B9879] mb-0.5">{t.wishes.coupleReply}</p>
                             <p className="serif-font text-[#4D342D]/80 italic text-[12px] leading-relaxed">{wish.reply}</p>
                           </div>
                         )}
@@ -692,6 +693,7 @@ const Guestbook = ({ guestName }: { guestName: string }) => {
 };
 
 const GalleryItem = ({ index, className, onClick }: { index: number; className?: string; onClick: () => void }) => {
+  const { t } = useLanguage();
   return (
     <div
       onClick={onClick}
@@ -713,7 +715,7 @@ const GalleryItem = ({ index, className, onClick }: { index: number; className?:
       {/* Subtle Overlay Label */}
       <div className="absolute bottom-4 left-4 z-20 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0">
         <p className="outfit-font text-[8px] uppercase tracking-[0.3em] text-white font-bold bg-black/60 px-3 py-1 rounded-full">
-          Moment {index + 1}
+          {t.gallery.moment} {index + 1}
         </p>
       </div>
     </div>
@@ -772,6 +774,7 @@ const CustomCursor = () => {
 
 
 const Countdown = ({ targetDate, className }: { targetDate: string; className?: string }) => {
+  const { t } = useLanguage();
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -803,10 +806,10 @@ const Countdown = ({ targetDate, className }: { targetDate: string; className?: 
   }, [targetDate]);
 
   const items = [
-    { label: 'DAYS', value: timeLeft.days },
-    { label: 'HOURS', value: timeLeft.hours },
-    { label: 'MINUTES', value: timeLeft.minutes },
-    { label: 'SECONDS', value: timeLeft.seconds }
+    { label: t.countdown.days, value: timeLeft.days },
+    { label: t.countdown.hours, value: timeLeft.hours },
+    { label: t.countdown.minutes, value: timeLeft.minutes },
+    { label: t.countdown.seconds, value: timeLeft.seconds }
   ];
 
   return (
@@ -899,6 +902,7 @@ const LeafOrnament = ({ className, rotate = 0, delay = 0, parallaxSpeed = 0 }: {
 };
 
 const DesktopSidebar = ({ guestName, isOpen, onOpen }: { guestName: string; isOpen: boolean; onOpen: () => void }) => {
+  const { t } = useLanguage();
   return (
     <div className="relative w-full h-full flex flex-col justify-center items-center text-center p-8 md:p-16 text-white overflow-hidden">
       <div className="absolute inset-0 z-0 overflow-hidden">
@@ -931,7 +935,7 @@ const DesktopSidebar = ({ guestName, isOpen, onOpen }: { guestName: string; isOp
             transition={{ duration: 1.5, delay: 4.2, ease: "easeOut" }}
             className="outfit-font text-[10px] md:text-sm lg:text-[10px] uppercase font-semibold whitespace-nowrap"
           >
-            THE WEDDING OF
+            {t.cover.weddingOf}
           </motion.p>
           <motion.div 
             initial={{ scaleX: 0 }}
@@ -979,7 +983,7 @@ const DesktopSidebar = ({ guestName, isOpen, onOpen }: { guestName: string; isOp
           transition={{ duration: 1.2, delay: 6.0, ease: "easeOut" }}
           className="outfit-font text-[10.5px] md:text-xs uppercase tracking-[0.25em] font-medium text-white/95 mt-3"
         >
-          SUNDAY, 22 NOVEMBER 2026
+          {t.cover.date}
         </motion.p>
       </div>
 
@@ -995,11 +999,11 @@ const DesktopSidebar = ({ guestName, isOpen, onOpen }: { guestName: string; isOp
               className="flex flex-col items-center text-center space-y-5"
             >
               <div className="space-y-1">
-                <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 6.4, duration: 1 }} className="serif-font text-sm md:text-base italic text-white/85">Dear,</motion.p>
-                <motion.p initial={{ opacity: 0, scale: 0.9, filter: "blur(4px)" }} animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }} transition={{ delay: 6.6, duration: 1, ease: "easeOut" }} className="outfit-font text-2xl md:text-3xl font-normal text-white tracking-wide">{guestName || DEFAULT_GUEST_NAME}</motion.p>
+                <motion.p initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 6.4, duration: 1 }} className="serif-font text-sm md:text-base italic text-white/85">{t.cover.dear}</motion.p>
+                <motion.p initial={{ opacity: 0, scale: 0.9, filter: "blur(4px)" }} animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }} transition={{ delay: 6.6, duration: 1, ease: "easeOut" }} className="outfit-font text-2xl md:text-3xl font-normal text-white tracking-wide">{guestName || t.cover.defaultGuest}</motion.p>
               </div>
               <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 6.8, duration: 1 }} className="serif-font text-[11.5px] md:text-xs italic text-white/80 max-w-[290px] leading-relaxed">
-                We apologize if your name or title is written incorrectly.
+                {t.cover.apology}
               </motion.p>
               <motion.button
                 initial={{ opacity: 0, y: 15 }}
@@ -1017,7 +1021,7 @@ const DesktopSidebar = ({ guestName, isOpen, onOpen }: { guestName: string; isOp
                 <div className="relative bg-white/[0.08] group-hover:bg-white/[0.18] active:bg-white/[0.22] backdrop-blur-2xl backdrop-saturate-[180%] border border-white/25 rounded-full px-8 py-3.5 inline-flex items-center justify-center gap-2.5 shadow-[inset_0_1px_1.5px_0_rgba(255,255,255,0.5),inset_0_-1px_1px_0_rgba(0,0,0,0.2)] transition-all duration-300">
                   <Mail size={16} className="text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)] transition-transform duration-300 group-hover:scale-110" />
                   <span className="outfit-font tracking-[0.25em] text-[10.5px] font-bold uppercase text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
-                    OPEN INVITATION
+                    {t.cover.openBtn}
                   </span>
                 </div>
               </motion.button>
@@ -1030,10 +1034,11 @@ const DesktopSidebar = ({ guestName, isOpen, onOpen }: { guestName: string; isOp
 };
 
 const App = () => {
+  const { t } = useLanguage();
   const [isPreloading, setIsPreloading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [guestName, setGuestName] = useState(DEFAULT_GUEST_NAME);
+  const [guestName, setGuestName] = useState('');
   const [currentGalleryIndex, setCurrentGalleryIndex] = useState(0);
   const [selectedGalleryImage, setSelectedGalleryImage] = useState<number | null>(null);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
@@ -1235,6 +1240,9 @@ const App = () => {
 
   return (
     <div className="relative w-full min-h-screen font-sans text-primary selection:bg-tertiary/30">
+      {/* Minimalist Elegant Language Switcher Pill (always accessible on mobile & desktop) */}
+      <LanguageSwitcher />
+
       {/* Black Preloader */}
       <AnimatePresence>
         {isPreloading && (
@@ -1398,7 +1406,7 @@ const App = () => {
 
           {/* Hero Section */}
           <section id="hero" className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden bg-[#FFFFFF] lg:hidden">
-            {/* Mobile Cover (Unopened) - Exact match to user screenshot */}
+            {/* Mobile Cover (Unopened) */}
             <AnimatePresence>
               {!isOpen && (
                 <motion.div
@@ -1417,12 +1425,12 @@ const App = () => {
                       alt="Cover Photo"
                       className="w-full h-full object-cover object-top"
                     />
-                    {/* Dim Overlay: soft top vignette for sky text, clear center for couple, soft bottom vignette for guest & button */}
+                    {/* Dim Overlay */}
                     <div className="absolute inset-0 bg-black/20" />
                     <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-transparent to-black/85" />
                   </div>
 
-                  {/* Top Block: THE WEDDING OF, Nama & Tanggal (Naik ke Atas di Langit) */}
+                  {/* Top Block: THE WEDDING OF, Nama & Tanggal */}
                   <div className="relative z-10 flex flex-col items-center text-center w-full max-w-sm mx-auto">
                     {/* THE WEDDING OF */}
                     <motion.p
@@ -1431,7 +1439,7 @@ const App = () => {
                       transition={{ delay: 0.2, duration: 1 }}
                       className="outfit-font text-[10px] sm:text-[11px] uppercase tracking-[0.4em] text-[#EDE7DB]/95 font-semibold mb-1.5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
                     >
-                      THE WEDDING OF
+                      {t.cover.weddingOf}
                     </motion.p>
 
                     {/* Putri & Syarif */}
@@ -1458,14 +1466,14 @@ const App = () => {
                       <div className="flex-1 h-[0.5px] bg-[#DDCCB7]/60" />
                     </motion.div>
 
-                    {/* Date: MINGGU, 22 NOVEMBER 2026 */}
+                    {/* Date */}
                     <motion.p
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.6, duration: 1 }}
                       className="outfit-font tracking-[0.25em] uppercase text-[10px] sm:text-[11px] text-[#EDE7DB] font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
                     >
-                      SUNDAY, 22 NOVEMBER 2026
+                      {t.cover.date}
                     </motion.p>
                   </div>
 
@@ -1478,16 +1486,16 @@ const App = () => {
                       transition={{ delay: 0.7, duration: 1 }}
                       className="flex flex-col items-center text-center space-y-0.5 mb-3"
                     >
-                      <p className="serif-font italic text-[13px] text-[#EDE7DB]/90 drop-shadow-sm">Dear,</p>
+                      <p className="serif-font italic text-[13px] text-[#EDE7DB]/90 drop-shadow-sm">{t.cover.dear}</p>
                       <p className="outfit-font text-[18px] sm:text-[20px] font-normal text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] tracking-wide">
-                        {guestName || DEFAULT_GUEST_NAME}
+                        {guestName || t.cover.defaultGuest}
                       </p>
                       <p className="serif-font italic text-[10.5px] sm:text-[11.5px] text-[#EDE7DB]/85 max-w-[280px] leading-relaxed mt-0.5 drop-shadow-sm">
-                        We apologize if your name or title is written incorrectly.
+                        {t.cover.apology}
                       </p>
                     </motion.div>
 
-                    {/* Button: OPEN INVITATION (Transparent Liquid Glass) */}
+                    {/* Button: OPEN INVITATION */}
                     <motion.button
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -1497,14 +1505,14 @@ const App = () => {
                       onClick={handleOpenInvitation}
                       className="relative group overflow-hidden rounded-full p-[1px] bg-gradient-to-b from-white/45 via-white/20 to-white/10 hover:from-white/60 hover:via-white/30 hover:to-white/15 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5),0_10px_20px_-5px_rgba(0,0,0,0.3)] cursor-pointer mt-1"
                     >
-                      {/* Specular Liquid Light Sheen along Top Edge */}
+                      {/* Specular Liquid Light Sheen */}
                       <div className="absolute top-0 inset-x-6 h-[1px] bg-gradient-to-r from-transparent via-white/70 to-transparent z-20 pointer-events-none" />
 
                       {/* Liquid Glass Pill Body */}
                       <div className="relative bg-white/[0.08] group-hover:bg-white/[0.18] active:bg-white/[0.22] backdrop-blur-2xl backdrop-saturate-[180%] border border-white/25 rounded-full px-8 py-3.5 inline-flex items-center gap-2.5 shadow-[inset_0_1px_1.5px_0_rgba(255,255,255,0.5),inset_0_-1px_1px_0_rgba(0,0,0,0.2)] transition-all duration-300">
                         <Mail size={15} className="text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)] transition-transform duration-300 group-hover:scale-110" />
                         <span className="outfit-font tracking-[0.25em] text-[10.5px] font-bold uppercase text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
-                          OPEN INVITATION
+                          {t.cover.openBtn}
                         </span>
                       </div>
                     </motion.button>
@@ -1540,7 +1548,7 @@ const App = () => {
                 {/* Header: THE WEDDING OF */}
                 <Reveal delay={0.2} y={15}>
                   <p className="outfit-font text-[10px] sm:text-[11px] uppercase tracking-[0.45em] text-[#6A6A53] font-bold mb-2">
-                    THE WEDDING OF
+                    {t.hero.weddingOf}
                   </p>
                 </Reveal>
 
@@ -1562,25 +1570,25 @@ const App = () => {
                     <div className="w-[1.5px] h-10 bg-[#DDCCB7]" />
                     <div className="text-left outfit-font uppercase flex flex-col justify-center">
                       <p className="text-[#6A6A53] font-bold text-[9px] sm:text-[10px] tracking-[0.3em] leading-tight">
-                        SUNDAY
+                        {t.hero.day}
                       </p>
                       <p className="text-[#4D342D] font-bold text-[10.5px] sm:text-[11.5px] tracking-[0.2em] leading-tight mt-0.5">
-                        NOVEMBER 2026
+                        {t.hero.monthYear}
                       </p>
                       <p className="text-[#9B9879] font-medium text-[8px] sm:text-[8.5px] tracking-[0.16em] leading-tight mt-1">
-                        08.30 WIB ONWARDS
+                        {t.hero.timeTag}
                       </p>
                     </div>
                   </div>
                 </Reveal>
               </div>
 
-              {/* Bottom Block: QS Adz-Zariyat & Scroll Indicator (mt-auto mendorong ke area bawah sebelum navbar) */}
+              {/* Bottom Block: QS Adz-Zariyat & Scroll Indicator */}
               <div className="flex flex-col items-center text-center w-full max-w-sm mx-auto mt-auto pt-10 sm:pt-16 pb-2">
                 <Reveal delay={0.6} y={15} duration={1.2}>
                   <div className="px-3">
                     <p className="serif-font text-[11.5px] sm:text-[13px] italic leading-[1.8] text-[#4D342D]/90">
-                      "And of all things We created two mates; perhaps you will remember."
+                      {t.hero.quote}
                     </p>
                     <div className="flex items-center justify-center gap-2.5 my-2.5 text-[#9B9879]/50">
                       <div className="h-[0.5px] w-8 bg-[#9B9879]/40" />
@@ -1588,7 +1596,7 @@ const App = () => {
                       <div className="h-[0.5px] w-8 bg-[#9B9879]/40" />
                     </div>
                     <p className="outfit-font text-[8.5px] sm:text-[9.5px] tracking-[0.28em] uppercase text-[#6A6A53] font-bold">
-                      QS. ADH-DHARIYAT : 49
+                      {t.hero.surah}
                     </p>
                   </div>
                 </Reveal>
@@ -1599,7 +1607,7 @@ const App = () => {
                   transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
                   className="flex flex-col items-center gap-0.5 text-[#9B9879] pt-3"
                 >
-                  <span className="outfit-font text-[7.5px] tracking-[0.35em] font-semibold uppercase">Scroll</span>
+                  <span className="outfit-font text-[7.5px] tracking-[0.35em] font-semibold uppercase">{t.hero.scroll}</span>
                   <ChevronDown size={13} />
                 </motion.div>
               </div>
@@ -1627,7 +1635,7 @@ const App = () => {
                 {/* Header: THE WEDDING OF */}
                 <Reveal delay={0.2} y={15}>
                   <p className="outfit-font text-[10px] md:text-[11.5px] uppercase tracking-[0.45em] text-[#6A6A53] font-bold mb-3">
-                    THE WEDDING OF
+                    {t.hero.weddingOf}
                   </p>
                 </Reveal>
 
@@ -1649,13 +1657,13 @@ const App = () => {
                     <div className="w-[1.5px] h-11 bg-[#DDCCB7]" />
                     <div className="text-left outfit-font uppercase flex flex-col justify-center">
                       <p className="text-[#6A6A53] font-bold text-[9.5px] md:text-[10.5px] tracking-[0.3em] leading-tight">
-                        SUNDAY
+                        {t.hero.day}
                       </p>
                       <p className="text-[#4D342D] font-bold text-[11px] md:text-[12px] tracking-[0.2em] leading-tight mt-0.5">
-                        NOVEMBER 2026
+                        {t.hero.monthYear}
                       </p>
                       <p className="text-[#9B9879] font-medium text-[8.5px] md:text-[9px] tracking-[0.16em] leading-tight mt-1">
-                        08.30 WIB ONWARDS
+                        {t.hero.timeTag}
                       </p>
                     </div>
                   </div>
@@ -1667,7 +1675,7 @@ const App = () => {
                 <Reveal delay={0.6} y={15} duration={1.2}>
                   <div className="px-4">
                     <p className="serif-font text-[12px] md:text-[13.5px] italic leading-[1.8] text-[#4D342D]/90">
-                      "And of all things We created two mates; perhaps you will remember."
+                      {t.hero.quote}
                     </p>
                     <div className="flex items-center justify-center gap-2.5 my-2.5 text-[#9B9879]/50">
                       <div className="h-[0.5px] w-8 bg-[#9B9879]/40" />
@@ -1675,7 +1683,7 @@ const App = () => {
                       <div className="h-[0.5px] w-8 bg-[#9B9879]/40" />
                     </div>
                     <p className="outfit-font text-[8.5px] md:text-[9.5px] tracking-[0.28em] uppercase text-[#6A6A53] font-bold">
-                      QS. ADH-DHARIYAT : 49
+                      {t.hero.surah}
                     </p>
                   </div>
                 </Reveal>
@@ -1684,7 +1692,7 @@ const App = () => {
             </div>
           </section>
 
-          {/* Quote Section with Cinematic Background — Neutral Black Scrim */}
+          {/* Quote Section with Cinematic Background */}
           <section className="relative min-h-[45vh] md:min-h-[55vh] flex items-center justify-center py-20 px-8 overflow-hidden bg-black">
             {/* Animated Background Image - Smooth Looping Zoom */}
             <motion.div
@@ -1719,7 +1727,7 @@ const App = () => {
 
               <Reveal delay={0.5} y={20} duration={2}>
                 <p className="serif-font text-[12px] sm:text-[14.5px] italic leading-[2] sm:leading-[1.9] text-[#EDE7DB] drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] max-w-3xl mx-auto px-2">
-                  "And of His signs is that He created for you from yourselves mates that you may find tranquillity in them; and He placed between you affection and mercy. Indeed in that are signs for a people who give thought."
+                  {t.quoteSection.quote}
                 </p>
               </Reveal>
 
@@ -1727,7 +1735,7 @@ const App = () => {
                 <div className="flex flex-col items-center gap-2.5">
                   <div className="w-12 h-[1px] bg-[#DDCCB7]/60 shadow-sm" />
                   <p className="outfit-font text-[9px] md:text-xs lg:text-[9px] uppercase tracking-[0.4em] font-bold text-[#DDCCB7] drop-shadow-md">
-                    QS. AR-RUM : 21
+                    {t.quoteSection.surah}
                   </p>
                 </div>
               </Reveal>
@@ -1762,12 +1770,12 @@ const App = () => {
                 </Reveal>
 
                 <Reveal delay={0.4} y={10} duration={1.2}>
-                  <h2 className="italiana-font text-[20px] md:text-2xl lg:text-[20px] font-bold text-center text-[#54543E] tracking-widest mb-3">Assalamu'alaikum Wr. Wb.</h2>
+                  <h2 className="italiana-font text-[20px] md:text-2xl lg:text-[20px] font-bold text-center text-[#54543E] tracking-widest mb-3">{t.profile.salutation}</h2>
                 </Reveal>
 
                 <Reveal delay={0.6} y={10} duration={1.5}>
                   <p className="serif-font text-[12.5px] md:text-[16px] lg:text-[12.5px] leading-[1.8] text-[#4D342D]/85 italic text-center max-w-[340px] mx-auto">
-                    Seeking the grace and blessings of Allah SWT, we request the honor of your presence at our wedding.
+                    {t.profile.greetingBody}
                   </p>
                 </Reveal>
               </div>
@@ -1854,9 +1862,9 @@ const App = () => {
                         </div>
 
                         <div className="mt-6 md:mt-8 flex flex-col gap-1 md:gap-2">
-                          <p className="outfit-font text-[9px] md:text-[12px] lg:text-[9px] text-[#DDCCB7]/70 tracking-[0.2em] font-bold uppercase">First Daughter of</p>
+                          <p className="outfit-font text-[9px] md:text-[12px] lg:text-[9px] text-[#DDCCB7]/70 tracking-[0.2em] font-bold uppercase">{t.profile.daughterOf}</p>
                           <p className="serif-font text-[11.5px] md:text-[15px] lg:text-[11.5px] text-white italic leading-[1.8] px-1">
-                            {WEDDING_CONFIG.brideParents}
+                            {t.profile.brideParents}
                           </p>
                         </div>
                       </Reveal>
@@ -1884,9 +1892,9 @@ const App = () => {
                         </div>
 
                         <div className="mt-6 md:mt-8 flex flex-col gap-1 md:gap-2">
-                          <p className="outfit-font text-[9px] md:text-[12px] lg:text-[9px] text-[#DDCCB7]/70 tracking-[0.2em] font-bold uppercase">Sixth Son of</p>
+                          <p className="outfit-font text-[9px] md:text-[12px] lg:text-[9px] text-[#DDCCB7]/70 tracking-[0.2em] font-bold uppercase">{t.profile.sonOf}</p>
                           <p className="serif-font text-[11.5px] md:text-[15px] lg:text-[11.5px] text-white italic leading-[1.8] px-1">
-                            {WEDDING_CONFIG.groomParents}
+                            {t.profile.groomParents}
                           </p>
                         </div>
                       </Reveal>
@@ -1918,10 +1926,10 @@ const App = () => {
               <Reveal y={25} scale={1} className="w-full">
                 <div className="text-center space-y-2 mb-6 sm:mb-7">
                   <p className="outfit-font text-[9.5px] uppercase tracking-[0.45em] text-[#6A6A53] font-semibold">
-                    TIME &amp; LOCATION
+                    {t.event.subtitle}
                   </p>
                   <h2 className="italiana-font text-3xl sm:text-4xl text-[#4D342D] font-normal tracking-wide">
-                    Save The Date
+                    {t.event.title}
                   </h2>
 
                   {/* Two underline accents with center gap */}
@@ -1935,7 +1943,7 @@ const App = () => {
               {/* The Event Card */}
               <Reveal y={30} scale={1} duration={1.2} className="w-full">
                 <div className="w-full rounded-[28px] sm:rounded-[32px] overflow-hidden shadow-[0_22px_55px_-12px_rgba(77,52,45,0.28)] bg-[#515743] text-[#EDE7DB] px-6 sm:px-9 py-12 sm:py-16 text-center relative border border-[#DDCCB7]/30">
-                  {/* Photo Slideshow with smooth gentle zoom (Ken Burns effect) */}
+                  {/* Photo Slideshow with smooth gentle zoom */}
                   <EventCardPhotoSlideshow />
 
                   {/* Subtle paper grain overlay inside card */}
@@ -1947,7 +1955,7 @@ const App = () => {
                   <div className="relative z-10 flex flex-col items-center">
                     {/* Day Name */}
                     <p className="italiana-font text-[28px] sm:text-[34px] text-[#EDE7DB] font-normal leading-tight tracking-wide">
-                      Sunday
+                      {t.event.day}
                     </p>
 
                     {/* Day Number */}
@@ -1957,7 +1965,7 @@ const App = () => {
 
                     {/* Month & Year */}
                     <p className="outfit-font text-[10px] sm:text-[11px] tracking-[0.38em] uppercase text-[#DDCCB7] font-normal mt-1.5 sm:mt-2">
-                      NOVEMBER 2026
+                      {t.event.monthYear}
                     </p>
 
                     {/* Intertwined Rings Divider 1 */}
@@ -1973,20 +1981,20 @@ const App = () => {
                     {/* Akad Nikah */}
                     <div className="space-y-1">
                       <p className="outfit-font text-[10.5px] sm:text-[11.5px] tracking-[0.32em] uppercase text-[#EDE7DB] font-normal">
-                        WEDDING CEREMONY
+                        {t.event.akadTitle}
                       </p>
                       <p className="serif-font italic text-[12.5px] sm:text-[13.5px] text-[#DDCCB7] mt-0.5">
-                        {WEDDING_CONFIG.akadTime}
+                        {t.event.akadTime}
                       </p>
                     </div>
 
                     {/* Resepsi */}
                     <div className="space-y-1 mt-4 sm:mt-5">
                       <p className="outfit-font text-[10.5px] sm:text-[11.5px] tracking-[0.32em] uppercase text-[#EDE7DB] font-normal">
-                        RECEPTION
+                        {t.event.resepsiTitle}
                       </p>
                       <p className="serif-font italic text-[12.5px] sm:text-[13.5px] text-[#DDCCB7] mt-0.5">
-                        {WEDDING_CONFIG.resepsiTime}
+                        {t.event.resepsiTime}
                       </p>
                     </div>
 
@@ -2005,8 +2013,8 @@ const App = () => {
                       <h3 className="italiana-font text-[22px] sm:text-[26px] text-[#EDE7DB] font-normal tracking-wide">
                         {WEDDING_CONFIG.akadLocationName}
                       </h3>
-                      <p className="serif-font italic text-[11px] sm:text-[12px] text-[#DDCCB7] max-w-xs mx-auto leading-relaxed mt-0.5">
-                        Sukatani, Pacet, Cianjur,<br />West Java 43253
+                      <p className="serif-font italic text-[11px] sm:text-[12px] text-[#DDCCB7] max-w-xs mx-auto leading-relaxed mt-0.5 whitespace-pre-line">
+                        {t.event.address}
                       </p>
                     </div>
 
@@ -2021,7 +2029,7 @@ const App = () => {
                         whileTap={{ scale: 0.98 }}
                         className="w-full rounded-full bg-[#EDE7DB] hover:bg-white text-[#4D342D] py-3.5 px-6 font-semibold tracking-[0.25em] text-[10px] uppercase shadow-md transition-all block text-center border border-[#DDCCB7]"
                       >
-                        LOCATION MAP
+                        {t.event.locationMapBtn}
                       </motion.a>
 
                       {/* Button 2: Simpan Tanggal (Hairline Outline) */}
@@ -2033,17 +2041,17 @@ const App = () => {
                           const endDate = new Date(startDate.getTime() + 4 * 60 * 60 * 1000); // 4 jam kemudian
                           const toGCalUTC = (d: Date) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
                           const event = {
-                            title: "Wedding of Putri & Syarif",
+                            title: t.event.calTitle,
                             start: toGCalUTC(startDate),
                             end: toGCalUTC(endDate),
                             location: WEDDING_CONFIG.akadLocationName,
-                            description: "We kindly ask for your prayers and blessings for our wedding."
+                            description: t.event.calDesc
                           };
                           window.open(`https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${event.start}/${event.end}&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(event.location)}`, '_blank');
                         }}
                         className="w-full rounded-full bg-transparent hover:bg-white/10 text-[#EDE7DB] border border-[#DDCCB7]/70 py-3.5 px-6 font-semibold tracking-[0.25em] text-[10px] uppercase transition-all block text-center cursor-pointer"
                       >
-                        ADD TO CALENDAR
+                        {t.event.calendarBtn}
                       </motion.button>
                     </div>
                   </div>
@@ -2074,12 +2082,12 @@ const App = () => {
                 <div className="flex flex-col items-center">
                   {/* FROM THIS TIME */}
                   <p className="outfit-font text-[10px] sm:text-[11px] uppercase tracking-[0.45em] text-[#DDCCB7]/90 font-normal mb-2 sm:mb-2.5">
-                    FROM THIS TIME
+                    {t.countdown.tag}
                   </p>
 
                   {/* You Are The One */}
                   <h2 className="playfair-font text-[30px] sm:text-[40px] md:text-[46px] text-[#EDE7DB] font-normal tracking-wide leading-tight mb-3 sm:mb-3.5">
-                    You Are The One
+                    {t.countdown.title}
                   </h2>
 
                   {/* Elegant Divider: Line — Open Diamond — Line */}
@@ -2091,7 +2099,7 @@ const App = () => {
 
                   {/* Subtitle */}
                   <p className="serif-font italic font-normal text-xs sm:text-[13.5px] text-[#DDCCB7]/90 leading-relaxed max-w-md mx-auto mb-7 sm:mb-9">
-                    Counting the days until we make our vows
+                    {t.countdown.desc}
                   </p>
                 </div>
               </Reveal>
@@ -2103,7 +2111,6 @@ const App = () => {
             </div>
           </section>
 
-          {/* Love Story Section — Our Journey Winding Timeline */}
           {/* Love Story Section */}
           <section id="story" className="pt-24 sm:pt-28 pb-20 sm:pb-24 px-4 sm:px-6 relative overflow-hidden bg-[#FAF7F2]">
             {/* Background Image: WhatsApp Image 2026-10-27 at 23.22.45.png (Watercolor leaf at top) */}
@@ -2126,7 +2133,7 @@ const App = () => {
                   transition={{ duration: 0.8, ease: "easeOut" }}
                   className="outfit-font text-[10px] sm:text-[11px] uppercase tracking-[0.45em] text-[#9B9879] font-medium text-center"
                 >
-                  OUR JOURNEY
+                  {t.story.tag}
                 </motion.p>
                 <motion.h2
                   initial={{ opacity: 0, y: 16, filter: "blur(5px)" }}
@@ -2135,7 +2142,7 @@ const App = () => {
                   transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
                   className="italiana-font text-4xl sm:text-5xl text-[#54543E] text-center font-normal tracking-wide"
                 >
-                  Love Story
+                  {t.story.title}
                 </motion.h2>
 
                 {/* Horizontal Divider Line expanding from center */}
@@ -2150,7 +2157,7 @@ const App = () => {
 
               {/* Timeline Container with Continuous Vertical Line */}
               <div className="relative space-y-12 sm:space-y-14 pl-1">
-                {/* Continuous Vertical Timeline Line on Left - draws downwards */}
+                {/* Continuous Vertical Timeline Line on Left */}
                 <motion.div
                   initial={{ scaleY: 0, opacity: 0 }}
                   whileInView={{ scaleY: 1, opacity: 1 }}
@@ -2159,9 +2166,8 @@ const App = () => {
                   className="absolute left-[17px] sm:left-[19px] top-4 bottom-2 w-[1px] bg-[#DDCCB7] pointer-events-none z-0 origin-top"
                 />
 
-                {/* Milestone 1: Titik Awal */}
+                {/* Milestone 1 */}
                 <div className="relative flex items-start gap-4 sm:gap-5 z-10">
-                  {/* Badge I */}
                   <motion.div
                     initial={{ scale: 0.7, opacity: 0 }}
                     whileInView={{ scale: 1, opacity: 1 }}
@@ -2172,7 +2178,6 @@ const App = () => {
                     I
                   </motion.div>
 
-                  {/* Story Text */}
                   <motion.div
                     initial={{ opacity: 0, y: 15 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -2187,7 +2192,7 @@ const App = () => {
                       transition={{ duration: 0.8, delay: 0.15 }}
                       className="outfit-font text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-[#9B9879] font-medium mb-1"
                     >
-                      LATE DECEMBER 2016
+                      {t.story.milestone1.date}
                     </motion.p>
                     <motion.h3
                       initial={{ opacity: 0, filter: "blur(4px)" }}
@@ -2196,7 +2201,7 @@ const App = () => {
                       transition={{ duration: 1, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
                       className="italiana-font text-[24px] sm:text-[27px] text-[#4D342D] leading-tight mb-2.5 font-normal"
                     >
-                      Where It Began
+                      {t.story.milestone1.title}
                     </motion.h3>
                     <motion.p
                       initial={{ opacity: 0, y: 8 }}
@@ -2205,14 +2210,13 @@ const App = () => {
                       transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
                       className="serif-font text-[12px] sm:text-[13px] text-[#4D342D]/80 leading-[1.8] text-left"
                     >
-                      It all started with a simple introduction at the end of 2016. Through a friend, fate brought us together for the first time.
+                      {t.story.milestone1.desc}
                     </motion.p>
                   </motion.div>
                 </div>
 
-                {/* Milestone 2: Mengikat Janji */}
+                {/* Milestone 2 */}
                 <div className="relative flex items-start gap-4 sm:gap-5 z-10">
-                  {/* Badge II */}
                   <motion.div
                     initial={{ scale: 0.7, opacity: 0 }}
                     whileInView={{ scale: 1, opacity: 1 }}
@@ -2223,7 +2227,6 @@ const App = () => {
                     II
                   </motion.div>
 
-                  {/* Story Text */}
                   <motion.div
                     initial={{ opacity: 0, y: 15 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -2238,7 +2241,7 @@ const App = () => {
                       transition={{ duration: 0.8, delay: 0.15 }}
                       className="outfit-font text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-[#9B9879] font-medium mb-1"
                     >
-                      14 JUNE 2026
+                      {t.story.milestone2.date}
                     </motion.p>
                     <motion.h3
                       initial={{ opacity: 0, filter: "blur(4px)" }}
@@ -2247,7 +2250,7 @@ const App = () => {
                       transition={{ duration: 1, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
                       className="italiana-font text-[24px] sm:text-[27px] text-[#4D342D] leading-tight mb-2.5 font-normal"
                     >
-                      Making a Promise
+                      {t.story.milestone2.title}
                     </motion.h3>
                     <motion.p
                       initial={{ opacity: 0, y: 8 }}
@@ -2256,14 +2259,13 @@ const App = () => {
                       transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
                       className="serif-font text-[12px] sm:text-[13px] text-[#4D342D]/80 leading-[1.8] text-left"
                     >
-                      Time put us to the test, and we grew sure of each other. After years together through good times and hard ones, we decided to take a more serious step.
+                      {t.story.milestone2.desc}
                     </motion.p>
                   </motion.div>
                 </div>
 
-                {/* Milestone 3: Menuju Selamanya */}
+                {/* Milestone 3 */}
                 <div className="relative flex items-start gap-4 sm:gap-5 z-10">
-                  {/* Badge III */}
                   <motion.div
                     initial={{ scale: 0.7, opacity: 0 }}
                     whileInView={{ scale: 1, opacity: 1 }}
@@ -2274,7 +2276,6 @@ const App = () => {
                     III
                   </motion.div>
 
-                  {/* Story Text */}
                   <motion.div
                     initial={{ opacity: 0, y: 15 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -2289,7 +2290,7 @@ const App = () => {
                       transition={{ duration: 0.8, delay: 0.15 }}
                       className="outfit-font text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-[#9B9879] font-medium mb-1"
                     >
-                      22 NOVEMBER 2026
+                      {t.story.milestone3.date}
                     </motion.p>
                     <motion.h3
                       initial={{ opacity: 0, filter: "blur(4px)" }}
@@ -2298,7 +2299,7 @@ const App = () => {
                       transition={{ duration: 1, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
                       className="italiana-font text-[24px] sm:text-[27px] text-[#4D342D] leading-tight mb-2.5 font-normal"
                     >
-                      Toward Forever
+                      {t.story.milestone3.title}
                     </motion.h3>
                     <motion.p
                       initial={{ opacity: 0, y: 8 }}
@@ -2307,7 +2308,7 @@ const App = () => {
                       transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
                       className="serif-font text-[12px] sm:text-[13px] text-[#4D342D]/80 leading-[1.8] text-left"
                     >
-                      Now the long wait is over. With His permission and blessing, the most beautiful chapter of our lives is about to begin.
+                      {t.story.milestone3.desc}
                     </motion.p>
                   </motion.div>
                 </div>
@@ -2329,13 +2330,13 @@ const App = () => {
 
             <Reveal y={30}>
               <div className="text-center space-y-4 mb-16 relative z-10">
-                <p className="outfit-font text-[9.5px] uppercase tracking-[0.6em] text-[#6A6A53] font-semibold">Capturing</p>
+                <p className="outfit-font text-[9.5px] uppercase tracking-[0.6em] text-[#6A6A53] font-semibold">{t.gallery.tag}</p>
                 <div className="flex items-center justify-center gap-4">
                   <div className="flex-1 max-w-[80px] h-[0.5px] bg-gradient-to-r from-transparent to-[#9B9879]/50" />
                   <Camera size={14} className="text-[#6A6A53]" />
                   <div className="flex-1 max-w-[80px] h-[0.5px] bg-gradient-to-l from-transparent to-[#9B9879]/50" />
                 </div>
-                <h2 className="playfair-font text-4xl md:text-5xl lg:text-4xl text-[#4D342D] font-normal tracking-wide drop-shadow-sm">Our Moments</h2>
+                <h2 className="playfair-font text-4xl md:text-5xl lg:text-4xl text-[#4D342D] font-normal tracking-wide drop-shadow-sm">{t.gallery.title}</h2>
                 <div className="flex items-center justify-center gap-3">
                   <div className="h-[1px] w-8 bg-[#9B9879]/40" />
                   <div className="w-1.5 h-1.5 rotate-45 border border-[#9B9879]" />
@@ -2402,7 +2403,7 @@ const App = () => {
                 <div className="flex items-center justify-center gap-4 mt-6 opacity-90">
                   <div className="w-16 h-[0.5px] bg-gradient-to-r from-transparent to-[#9B9879]/60" />
                   <div className="flex items-center gap-2 text-[#6A6A53] animate-pulse">
-                    <span className="outfit-font text-[9px] uppercase tracking-[0.5em] ml-1">Swipe Right</span>
+                    <span className="outfit-font text-[9px] uppercase tracking-[0.5em] ml-1">{t.gallery.swipeHint}</span>
                     <ArrowRight size={14} strokeWidth={1.5} />
                   </div>
                   <div className="w-16 h-[0.5px] bg-gradient-to-l from-transparent to-[#9B9879]/60" />
@@ -2428,7 +2429,7 @@ const App = () => {
             <div className="max-w-4xl mx-auto space-y-8 relative z-10">
               <Reveal delay={0.4} y={20} duration={1.5}>
                 <div className="text-center flex flex-col items-center mb-10 relative z-10">
-                  <p className="outfit-font text-[10px] uppercase tracking-[0.5em] text-[#DDCCB7] font-semibold mb-4 ml-2">Share The Joy</p>
+                  <p className="outfit-font text-[10px] uppercase tracking-[0.5em] text-[#DDCCB7] font-semibold mb-4 ml-2">{t.gift.tag}</p>
                   
                   <div className="flex items-center justify-center gap-5 mb-5 w-full max-w-[280px]">
                     <div className="flex-1 h-[0.5px] bg-[#DDCCB7]/50" />
@@ -2436,7 +2437,7 @@ const App = () => {
                     <div className="flex-1 h-[0.5px] bg-[#DDCCB7]/50" />
                   </div>
                   
-                  <h2 className="italiana-font text-4xl md:text-5xl lg:text-4xl text-[#EDE7DB] drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)] mb-6">Wedding Gift</h2>
+                  <h2 className="italiana-font text-4xl md:text-5xl lg:text-4xl text-[#EDE7DB] drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)] mb-6">{t.gift.title}</h2>
                   
                   <div className="flex items-center justify-center gap-4">
                     <div className="h-[0.5px] w-12 bg-[#DDCCB7]/50" />
@@ -2448,7 +2449,7 @@ const App = () => {
 
               <Reveal delay={0.6} y={15} duration={1.5}>
                 <p className="sans-font text-[12px] text-[#EDE7DB]/95 mb-10 md:mb-12 leading-relaxed italic px-2 max-w-lg mx-auto drop-shadow-sm">
-                  If you would like to send a gift, you can use the details below.
+                  {t.gift.desc}
                 </p>
               </Reveal>
 
@@ -2472,7 +2473,7 @@ const App = () => {
             <div className="relative z-10 pt-20 pb-8 px-6">
               <Reveal y={20} duration={1.5}>
                 <div className="text-center space-y-6 max-w-sm mx-auto">
-                  <p className="outfit-font text-[9px] lg:text-[9px] uppercase tracking-[0.5em] text-[#9B9879] font-bold">Guest Book</p>
+                  <p className="outfit-font text-[9px] lg:text-[9px] uppercase tracking-[0.5em] text-[#9B9879] font-bold">{t.wishes.tag}</p>
 
                   <div className="flex items-center justify-center gap-4">
                     <div className="flex-1 h-[0.5px] bg-gradient-to-r from-transparent to-[#9B9879]/25" />
@@ -2486,7 +2487,7 @@ const App = () => {
                   </div>
 
                   <h2 className="italiana-font text-4xl md:text-5xl lg:text-4xl text-[#54543E] leading-tight">
-                    Wedding Wishes
+                    {t.wishes.title}
                   </h2>
 
                   <div className="flex items-center justify-center gap-4">
@@ -2496,7 +2497,7 @@ const App = () => {
                   </div>
 
                   <p className="serif-font italic text-[13px] text-[#4D342D]/75 leading-relaxed">
-                    Share your prayers and wishes for the two of us
+                    {t.wishes.subtitle}
                   </p>
                 </div>
               </Reveal>
@@ -2540,7 +2541,7 @@ const App = () => {
                   </div>
                 </Reveal>
                 <Reveal delay={0.2} y={30} duration={1.5}>
-                  <h3 className="italiana-font text-4xl md:text-5xl lg:text-4xl text-[#FFFFFF] drop-shadow-sm mb-6 leading-tight">A Prayer for the Couple</h3>
+                  <h3 className="italiana-font text-4xl md:text-5xl lg:text-4xl text-[#FFFFFF] drop-shadow-sm mb-6 leading-tight">{t.prayer.title}</h3>
                 </Reveal>
                 <Reveal delay={0.4} scale={0.5} duration={1}>
                   <div className="flex items-center justify-center gap-4">
@@ -2559,19 +2560,19 @@ const App = () => {
                 </Reveal>
                 <Reveal delay={0.6} y={20} duration={2}>
                   <p className="serif-font text-sm text-white/90 italic leading-relaxed md:leading-loose">
-                    "May Allah bless you, shower His blessings upon you, and unite you both in goodness."
+                    {t.prayer.meaning}
                   </p>
                 </Reveal>
                 <Reveal delay={1} y={10} duration={1.5}>
                   <p className="outfit-font text-[10px] text-[#DDCCB7]/80 tracking-widest uppercase">
-                    (Narrated by Ahmad, at-Tirmidhi, and an-Nasa'i)
+                    {t.prayer.narrator}
                   </p>
                 </Reveal>
               </div>
             </div>
           </section>
 
-          {/* Closing Section — Cinematic Fullscreen Background (Matched to User Reference Image) */}
+          {/* Closing Section — Cinematic Fullscreen Background */}
           <section id="closing" className="relative min-h-screen flex flex-col justify-end items-center text-center px-6 pt-24 pb-12 sm:pb-14 overflow-hidden">
             {/* Background Photo: gallery/atas-11.webp */}
             <div className="absolute inset-0 z-0 overflow-hidden">
@@ -2580,39 +2581,39 @@ const App = () => {
                 alt="Putri & Syarif"
                 className="w-full h-full object-cover object-[center_24%]"
               />
-              {/* Soft cinematic vignette overlay matching user reference image */}
+              {/* Soft cinematic vignette overlay */}
               <div className="absolute inset-0 bg-black/20" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/5" />
               <div className="absolute inset-0 bg-texture opacity-[0.05] mix-blend-overlay pointer-events-none" />
             </div>
 
-            {/* Content Container (Positioned in lower half over the road/lower photo) */}
+            {/* Content Container */}
             <div className="relative z-10 max-w-lg mx-auto flex flex-col items-center text-center">
               {/* Thank You */}
               <Reveal delay={0.2} y={15} duration={1.2}>
                 <h2 className="italiana-font text-[28px] sm:text-[33px] md:text-[36px] text-white font-normal tracking-[0.03em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-3">
-                  Thank You
+                  {t.closing.title}
                 </h2>
               </Reveal>
 
               {/* Narrative Thank You Message */}
               <Reveal delay={0.4} y={15} duration={1.3}>
                 <p className="outfit-font text-[10px] sm:text-[11.5px] md:text-[12px] text-white/90 leading-[1.85] font-light max-w-[320px] sm:max-w-[360px] mx-auto mb-3.5 sm:mb-4 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)] px-1">
-                  It would be an honor and a joy for us and our families if you could attend and give your blessings to the bride and groom.
+                  {t.closing.narrative}
                 </p>
               </Reveal>
 
               {/* Islamic Salutation */}
               <Reveal delay={0.6} y={15} duration={1.3}>
                 <p className="serif-font italic font-normal text-[11px] sm:text-[12.5px] text-white/95 mb-6 sm:mb-7 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
-                  Wassalamu'alaikum Warahmatullahi Wabarakatuh
+                  {t.closing.salutation}
                 </p>
               </Reveal>
 
               {/* Subtitle: THE HAPPY COUPLE */}
               <Reveal delay={0.8} y={10} duration={1.2}>
                 <p className="outfit-font text-[8.5px] sm:text-[9.5px] uppercase tracking-[0.5em] text-white/75 font-light mb-2.5 sm:mb-3 drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)]">
-                  THE HAPPY COUPLE
+                  {t.closing.happyCouple}
                 </p>
               </Reveal>
 
@@ -2630,10 +2631,10 @@ const App = () => {
             <Reveal delay={0.1} y={10} duration={1.2}>
               <div className="flex flex-col items-center justify-center space-y-1.5 max-w-sm mx-auto">
                 <p className="outfit-font text-[8.5px] uppercase tracking-[0.35em] text-[#DDCCB7]/60 font-medium">
-                  Made with love by
+                  {t.footer.madeWithLove}
                 </p>
                 <p className="italiana-font text-[18px] sm:text-[20px] text-[#EDE7DB] tracking-wide font-normal">
-                  IT Palugada
+                  {t.footer.author}
                 </p>
                 <motion.a
                   href={`https://wa.me/${WEDDING_CONFIG.whatsappContact}`}
@@ -2647,7 +2648,7 @@ const App = () => {
                   <span>{WEDDING_CONFIG.whatsappContactDisplay}</span>
                 </motion.a>
                 <p className="outfit-font text-[7.5px] uppercase tracking-[0.25em] text-[#DDCCB7]/35 pt-2">
-                  © 2026 IT PALUGADA. ALL RIGHTS RESERVED.
+                  {t.footer.copyright}
                 </p>
               </div>
             </Reveal>
@@ -2686,7 +2687,7 @@ const App = () => {
             />
             <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
               <p className="outfit-font text-[10px] uppercase tracking-[0.5em] text-white/40 font-bold bg-black/20 backdrop-blur-md px-6 py-2 rounded-full border border-white/5">
-                Moment {selectedGalleryImage + 1}
+                {t.gallery.moment} {selectedGalleryImage + 1}
               </p>
             </div>
           </motion.div>

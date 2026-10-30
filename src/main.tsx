@@ -5,11 +5,13 @@ import App from './App';
 import Admin from './Admin';
 import './index.css';
 
+import { LanguageProvider } from './lib/i18n';
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
+        <Route path="/" element={<LanguageProvider><App /></LanguageProvider>} />
         <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
