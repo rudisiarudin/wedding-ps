@@ -531,55 +531,70 @@ export const LanguageSwitcher: React.FC<{ className?: string }> = ({ className }
   const { language, setLanguage } = useLanguage();
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: 0.3 }}
       className={cn(
         "fixed top-4 right-4 sm:top-5 sm:right-6 z-[120] flex items-center select-none pointer-events-auto",
         className
       )}
     >
-      <div className="relative p-[1px] rounded-full bg-gradient-to-b from-white/45 via-white/20 to-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.3)]">
-        <div className="relative flex items-center bg-black/45 backdrop-blur-xl rounded-full p-0.5 border border-white/25">
+      {/* Liquid Glass Outer Container with Specular Rim */}
+      <div className="relative group overflow-hidden rounded-full p-[1px] bg-gradient-to-b from-white/55 via-white/20 to-white/10 hover:from-white/70 hover:via-white/30 hover:to-white/15 shadow-[0_16px_36px_-6px_rgba(0,0,0,0.45),0_4px_12px_-2px_rgba(0,0,0,0.25)] transition-all duration-300">
+        {/* Specular Liquid Light Sheen along Top Edge */}
+        <div className="absolute top-0 inset-x-3 h-[1px] bg-gradient-to-r from-transparent via-white/85 to-transparent z-30 pointer-events-none" />
+
+        {/* Liquid Glass Pill Body */}
+        <div className="relative flex items-center bg-black/30 hover:bg-black/40 backdrop-blur-2xl backdrop-saturate-[180%] rounded-full p-1 border border-white/25 shadow-[inset_0_1px_1.5px_0_rgba(255,255,255,0.45),inset_0_-1px_1px_0_rgba(0,0,0,0.25)] transition-all duration-300">
+          {/* ID Button */}
           <button
             type="button"
             onClick={() => setLanguage('id')}
             className={cn(
-              "relative px-2.5 sm:px-3 py-1 text-[9.5px] sm:text-[10px] outfit-font font-bold tracking-wider rounded-full transition-all duration-300 cursor-pointer",
-              language === 'id' ? "text-[#4D342D]" : "text-white/75 hover:text-white"
+              "relative px-3 py-1 text-[9.5px] sm:text-[10px] outfit-font font-bold tracking-wider rounded-full transition-all duration-300 cursor-pointer flex items-center justify-center",
+              language === 'id'
+                ? "text-[#4D342D]"
+                : "text-white/80 hover:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
             )}
             aria-label="Bahasa Indonesia"
           >
             {language === 'id' && (
               <motion.div
-                layoutId="lang-active-pill"
-                className="absolute inset-0 bg-white rounded-full shadow-sm"
-                transition={{ type: "spring", stiffness: 350, damping: 26 }}
+                layoutId="lang-liquid-pill"
+                className="absolute inset-0 bg-gradient-to-b from-white via-white/95 to-white/90 rounded-full shadow-[0_3px_10px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.95)]"
+                transition={{ type: "spring", stiffness: 380, damping: 28 }}
               />
             )}
-            <span className="relative z-10">ID</span>
+            <span className="relative z-10 drop-shadow-sm">ID</span>
           </button>
 
-          <span className="text-white/30 text-[8px] -mx-0.5 select-none">•</span>
+          {/* Liquid Glass Center Divider */}
+          <div className="w-[1px] h-3 bg-gradient-to-b from-transparent via-white/35 to-transparent mx-0.5 z-10 pointer-events-none" />
 
+          {/* EN Button */}
           <button
             type="button"
             onClick={() => setLanguage('en')}
             className={cn(
-              "relative px-2.5 sm:px-3 py-1 text-[9.5px] sm:text-[10px] outfit-font font-bold tracking-wider rounded-full transition-all duration-300 cursor-pointer",
-              language === 'en' ? "text-[#4D342D]" : "text-white/75 hover:text-white"
+              "relative px-3 py-1 text-[9.5px] sm:text-[10px] outfit-font font-bold tracking-wider rounded-full transition-all duration-300 cursor-pointer flex items-center justify-center",
+              language === 'en'
+                ? "text-[#4D342D]"
+                : "text-white/80 hover:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
             )}
             aria-label="English"
           >
             {language === 'en' && (
               <motion.div
-                layoutId="lang-active-pill"
-                className="absolute inset-0 bg-white rounded-full shadow-sm"
-                transition={{ type: "spring", stiffness: 350, damping: 26 }}
+                layoutId="lang-liquid-pill"
+                className="absolute inset-0 bg-gradient-to-b from-white via-white/95 to-white/90 rounded-full shadow-[0_3px_10px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.95)]"
+                transition={{ type: "spring", stiffness: 380, damping: 28 }}
               />
             )}
-            <span className="relative z-10">EN</span>
+            <span className="relative z-10 drop-shadow-sm">EN</span>
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
