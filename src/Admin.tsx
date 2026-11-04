@@ -74,6 +74,7 @@ const Admin = () => {
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [customMessage, setCustomMessage] = useState('');
   const [showPreview, setShowPreview] = useState(false);
+  const [igSheet, setIgSheet] = useState<{ message: string; dmUrl: string; guestLabel: string } | null>(null);
 
   // Wishes State
   const [wishes, setWishes] = useState<Wish[]>([]);
@@ -433,28 +434,39 @@ const Admin = () => {
     }
 
     const username = guestInstagram.trim().replace(/^@/, '');
-    window.open(username ? `https://ig.me/m/${username}` : 'https://www.instagram.com/direct/inbox/', '_blank');
+    const message = getInstagramMessage(guestName, generatedUrl, category);
 
     try {
-      await copyTextToClipboard(getInstagramMessage(guestName, generatedUrl, category));
-      showToast('Pesan undangan tersalin! Tempel (paste) di DM Instagram, lalu kirim.', 'success');
+      await copyTextToClipboard(message);
+      showToast('Pesan undangan tersalin! Tinggal buka DM Instagram, tempel (paste), lalu kirim.', 'success');
     } catch (err) {
       console.error('Failed to copy message:', err);
-      showToast('Gagal menyalin pesan undangan.', 'error');
     }
+
+    setIgSheet({
+      message,
+      dmUrl: username ? `https://ig.me/m/${username}` : 'https://www.instagram.com/direct/inbox/',
+      guestLabel: guestName
+    });
   };
+
 
   const sendGuestIg = async (guest: GuestItem) => {
     const username = (guest.instagram || '').trim().replace(/^@/, '');
-    window.open(username ? `https://ig.me/m/${username}` : 'https://www.instagram.com/direct/inbox/', '_blank');
+    const message = getInstagramMessage(guest.name, guest.url, guest.category);
 
     try {
-      await copyTextToClipboard(getInstagramMessage(guest.name, guest.url, guest.category));
-      showToast(`Pesan untuk ${guest.name} tersalin! Tempel (paste) di DM Instagram, lalu kirim.`, 'success');
+      await copyTextToClipboard(message);
+      showToast(`Pesan untuk ${guest.name} tersalin! Tinggal buka DM Instagram, tempel (paste), lalu kirim.`, 'success');
     } catch (err) {
       console.error('Failed to copy message:', err);
-      showToast('Gagal menyalin pesan undangan.', 'error');
     }
+
+    setIgSheet({
+      message,
+      dmUrl: username ? `https://ig.me/m/${username}` : 'https://www.instagram.com/direct/inbox/',
+      guestLabel: guest.name
+    });
   };
 
   const fetchWishes = async () => {
@@ -908,7 +920,7 @@ const Admin = () => {
                           </div>
 
                           <p className="text-[10px] text-[#9B9879] leading-relaxed">
-                            Catatan Instagram: IG tidak mengizinkan pesan terisi otomatis seperti WhatsApp. Sekali klik, pesan salam + tautan tersalin dan DM tamu terbuka — tinggal tempel (paste) lalu kirim.
+                            Catatan Instagram: IG tidak mengizinkan pesan terisi otomatis seperti WhatsApp. Sekali klik, panel pesan muncul — salin pesannya, buka DM tamu, lalu tempel (paste) dan kirim.
                           </p>
 
                           <button
@@ -1584,6 +1596,74 @@ const Admin = () => {
                     {guestName || 'Nama Tamu'}
                   </p>
                 </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Instagram Message Sheet */}
+      <AnimatePresence>
+        {igSheet && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-md bg-white rounded-3xl p-5 shadow-2xl border border-[#E8E2D9] max-h-[92dvh] overflow-y-auto"
+            >
+              <div className="w-full flex items-center justify-between pb-3 mb-3 border-b border-[#E8E2D9]">
+                <span className="italiana-font text-base font-bold text-[#4D342D]">Kirim via Instagram</span>
+                <button
+                  type="button"
+                  onClick={() => setIgSheet(null)}
+                  className="p-1.5 rounded-full hover:bg-[#F2EDE4] text-[#6A6A53]"
+                  aria-label="Tutup"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <p className="text-[11px] font-semibold text-[#4D342D] mb-2">Untuk: {igSheet.guestLabel}</p>
+              <ol className="text-[11px] text-[#6A6A53] leading-relaxed space-y-1 mb-3 list-decimal list-inside">
+                <li>Klik <strong>Salin Pesan</strong> di bawah ini.</li>
+                <li>Klik <strong>Buka DM Instagram</strong>.</li>
+                <li>Di kolom pesan DM, tahan lalu pilih <strong>Tempel (Paste)</strong>, lalu kirim.</li>
+              </ol>
+
+              <textarea
+                readOnly
+                value={igSheet.message}
+                rows={9}
+                onFocus={(e) => e.target.select()}
+                className="w-full bg-[#FBF9F5] border border-[#E8E2D9] rounded-xl px-3.5 py-3 text-[11px] leading-relaxed text-[#4D342D] focus:outline-none focus:ring-2 focus:ring-[#54543E]/10 resize-none mb-3"
+              />
+
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await copyTextToClipboard(igSheet.message);
+                      showToast('Pesan tersalin! Sekarang buka DM Instagram dan tempel pesannya.', 'success');
+                    } catch (err) {
+                      showToast('Salin otomatis gagal. Tahan teks di atas, Pilih Semua, lalu Salin secara manual.', 'error');
+                    }
+                  }}
+                  className="py-3 px-4 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all flex items-center justify-center gap-2 bg-white text-[#4D342D] border border-[#E8E2D9] hover:bg-[#FBF9F5]"
+                >
+                  <Copy size={15} />
+                  <span>Salin Pesan</span>
+                </button>
+                <a
+                  href={igSheet.dmUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="py-3 px-4 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all flex items-center justify-center gap-2 bg-[#C13584] hover:bg-[#a52d72] text-white shadow-xs"
+                >
+                  <Instagram size={15} />
+                  <span>Buka DM Instagram</span>
+                </a>
               </div>
             </motion.div>
           </div>
