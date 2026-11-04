@@ -19,8 +19,12 @@ create table if not exists public.guests (
     name text not null,
     url text not null,
     category text,               -- misal: 'Keluarga', 'Sahabat', 'VIP', 'Rekan Kerja'
+    instagram text,              -- username Instagram tamu (tanpa @), untuk tombol Kirim via Instagram di Admin
     created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
+
+-- Jika tabel guests sudah terlanjur dibuat dari skema versi sebelumnya, jalankan baris ini sekali saja:
+-- alter table public.guests add column if not exists instagram text;
 
 -- 3. Tabel Pengaturan / Passcode Admin (settings)
 create table if not exists public.settings (
