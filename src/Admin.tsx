@@ -5,6 +5,7 @@ import {
   Lock,
   Link as LinkIcon,
   MessageSquare,
+  Instagram,
   Copy,
   LogOut,
   CheckCircle2,
@@ -46,6 +47,7 @@ interface GuestItem {
   name: string;
   url: string;
   category: 'muslim' | 'umum';
+  instagram?: string | null;
   created_at: string;
 }
 
@@ -67,6 +69,7 @@ const Admin = () => {
   // URL Generator State
   const [guestName, setGuestName] = useState('');
   const [category, setCategory] = useState<'muslim' | 'umum'>('muslim');
+  const [guestInstagram, setGuestInstagram] = useState('');
   const [generatedUrl, setGeneratedUrl] = useState('');
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [customMessage, setCustomMessage] = useState('');
@@ -185,18 +188,39 @@ const Admin = () => {
     }
   };
 
-  const addToTracker = async (name: string, url: string, cat: string) => {
+  const addToTracker = async (name: string, url: string, cat: string, ig?: string) => {
     if (!name || !url) return;
+
+    const username = (ig || '').trim().replace(/^@/, '');
+    const payload: { name: string; url: string; category: string; instagram?: string } = { name, url, category: cat };
+    if (username) payload.instagram = username;
 
     try {
       const { data, error } = await supabase
         .from('guests')
-        .insert([{ name, url, category: cat }])
+        .insert([payload])
         .select();
 
       if (error) throw error;
       if (data) setInvitedGuests([data[0], ...invitedGuests]);
     } catch (err) {
+      if (username) {
+        // Kolom instagram belum ada di database: tetap simpan tamunya, tanpa username IG
+        try {
+          const { data, error } = await supabase
+            .from('guests')
+            .insert([{ name, url, category: cat }])
+            .select();
+
+          if (error) throw error;
+          if (data) setInvitedGuests([data[0], ...invitedGuests]);
+          showToast('Tamu tersimpan, tetapi username IG belum bisa disimpan. Jalankan dulu SQL penambah kolom instagram di Supabase.', 'info');
+          return;
+        } catch (err2) {
+          console.error('Error adding guest:', err2);
+          return;
+        }
+      }
       console.error('Error adding guest:', err);
     }
   };
@@ -332,7 +356,7 @@ const Admin = () => {
       setTimeout(() => setCopiedUrl(false), 2200);
 
       if (!alreadyInvited) {
-        addToTracker(guestName, generatedUrl, category);
+        addToTracker(guestName, generatedUrl, category, guestInstagram);
       }
     } catch (err) {
       console.error('Failed to copy URL:', err);
@@ -348,7 +372,7 @@ const Admin = () => {
     );
 
     if (!alreadyInvited) {
-      addToTracker(guestName, generatedUrl, category);
+      addToTracker(guestName, generatedUrl, category, guestInstagram);
     }
 
     let text = customMessage;
@@ -369,6 +393,68 @@ const Admin = () => {
       text = text.replace(/{nama}/g, gName).replace(/{url}/g, gUrl);
     }
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
+  const copyTextToClipboard = async (text: string) => {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+  };
+
+  const getInstagramMessage = (name: string, url: string, cat: string) => {
+    let text = customMessage;
+    if (!text) {
+      text = getDefaultWhatsAppMessage(name, url, cat);
+    } else {
+      text = text.replace(/{nama}/g, name).replace(/{url}/g, url);
+    }
+    // Instagram tidak mendukung format tebal WhatsApp (*teks*); hilangkan tanda bintangnya agar rapi di DM
+    return text.replace(/\*/g, '');
+  };
+
+  const handleInstagramShare = async () => {
+    if (!generatedUrl || !guestName) return;
+
+    const alreadyInvited = invitedGuests.some(
+      g => g.name.toLowerCase() === guestName.toLowerCase()
+    );
+
+    if (!alreadyInvited) {
+      addToTracker(guestName, generatedUrl, category, guestInstagram);
+    }
+
+    const username = guestInstagram.trim().replace(/^@/, '');
+    window.open(username ? `https://ig.me/m/${username}` : 'https://www.instagram.com/direct/inbox/', '_blank');
+
+    try {
+      await copyTextToClipboard(getInstagramMessage(guestName, generatedUrl, category));
+      showToast('Pesan undangan tersalin! Tempel (paste) di DM Instagram, lalu kirim.', 'success');
+    } catch (err) {
+      console.error('Failed to copy message:', err);
+      showToast('Gagal menyalin pesan undangan.', 'error');
+    }
+  };
+
+  const sendGuestIg = async (guest: GuestItem) => {
+    const username = (guest.instagram || '').trim().replace(/^@/, '');
+    window.open(username ? `https://ig.me/m/${username}` : 'https://www.instagram.com/direct/inbox/', '_blank');
+
+    try {
+      await copyTextToClipboard(getInstagramMessage(guest.name, guest.url, guest.category));
+      showToast(`Pesan untuk ${guest.name} tersalin! Tempel (paste) di DM Instagram, lalu kirim.`, 'success');
+    } catch (err) {
+      console.error('Failed to copy message:', err);
+      showToast('Gagal menyalin pesan undangan.', 'error');
+    }
   };
 
   const fetchWishes = async () => {
@@ -661,7 +747,7 @@ const Admin = () => {
                       Buat Tautan Undangan Khusus
                     </h2>
                     <p className="text-xs text-[#6A6A53] leading-relaxed">
-                      Masukkan nama tamu untuk membuat tautan personal dengan salam otomatis via WhatsApp.
+                      Masukkan nama tamu untuk membuat tautan personal dengan salam otomatis via WhatsApp & Instagram.
                     </p>
                   </div>
 
@@ -678,6 +764,23 @@ const Admin = () => {
                         placeholder="Contoh: Bpk. Bambang & Keluarga"
                         className="w-full bg-[#FBF9F5] border border-[#E8E2D9] focus:border-[#54543E] rounded-xl px-4 py-3 text-sm text-[#4D342D] placeholder-[#9B9879]/60 focus:outline-none focus:ring-2 focus:ring-[#54543E]/10 transition-all font-medium"
                       />
+                    </div>
+
+                    {/* Input Username Instagram */}
+                    <div>
+                      <label className="block text-[11px] font-semibold uppercase tracking-[0.15em] text-[#6A6A53] mb-2 outfit-font">
+                        Username Instagram Tamu (Opsional)
+                      </label>
+                      <input
+                        type="text"
+                        value={guestInstagram}
+                        onChange={(e) => setGuestInstagram(e.target.value)}
+                        placeholder="Contoh: putriandiani (tanpa @)"
+                        className="w-full bg-[#FBF9F5] border border-[#E8E2D9] focus:border-[#54543E] rounded-xl px-4 py-3 text-sm text-[#4D342D] placeholder-[#9B9879]/60 focus:outline-none focus:ring-2 focus:ring-[#54543E]/10 transition-all font-medium"
+                      />
+                      <p className="text-[10px] text-[#9B9879] mt-1.5 leading-relaxed">
+                        Diisi agar tombol Instagram langsung membuka DM tamu ini. Pesan salam + tautan tetap tersalin otomatis untuk ditempel di DM.
+                      </p>
                     </div>
 
                     {/* Kategori Salam */}
@@ -715,7 +818,7 @@ const Admin = () => {
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <label className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#6A6A53] outfit-font">
-                          Pesan Pengantar WhatsApp (Opsional)
+                          Pesan Pengantar WhatsApp / Instagram (Opsional)
                         </label>
                         <div className="flex items-center gap-1.5">
                           <span className="text-[10px] text-[#9B9879]">Sisipkan token:</span>
@@ -793,7 +896,20 @@ const Admin = () => {
                               <MessageSquare size={15} />
                               <span>Buka di WhatsApp</span>
                             </button>
+
+                            <button
+                              type="button"
+                              onClick={handleInstagramShare}
+                              className="py-3 px-4 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all flex items-center justify-center gap-2 bg-[#C13584] hover:bg-[#a52d72] text-white shadow-xs sm:col-span-2"
+                            >
+                              <Instagram size={15} />
+                              <span>Kirim via Instagram</span>
+                            </button>
                           </div>
+
+                          <p className="text-[10px] text-[#9B9879] leading-relaxed">
+                            Catatan Instagram: IG tidak mengizinkan pesan terisi otomatis seperti WhatsApp. Sekali klik, pesan salam + tautan tersalin dan DM tamu terbuka — tinggal tempel (paste) lalu kirim.
+                          </p>
 
                           <button
                             type="button"
@@ -973,6 +1089,9 @@ const Admin = () => {
                                 <p className="font-mono text-[10px] text-[#9B9879] truncate max-w-xs mt-0.5">
                                   {guest.url}
                                 </p>
+                                {guest.instagram && (
+                                  <p className="text-[10px] font-medium text-[#C13584] mt-0.5">@{guest.instagram}</p>
+                                )}
                               </td>
                               <td className="px-6 py-4">
                                 <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
@@ -998,6 +1117,14 @@ const Admin = () => {
                                     title="Kirim via WhatsApp"
                                   >
                                     <MessageSquare size={14} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => sendGuestIg(guest)}
+                                    className="p-2 rounded-lg bg-pink-50 text-pink-700 hover:bg-pink-100 transition-colors"
+                                    title="Kirim via Instagram (pesan tersalin, tempel di DM)"
+                                  >
+                                    <Instagram size={14} />
                                   </button>
                                   <button
                                     type="button"
@@ -1061,6 +1188,14 @@ const Admin = () => {
                             >
                               <MessageSquare size={14} />
                               <span>Kirim WA</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => sendGuestIg(guest)}
+                              className="flex-1 py-2 rounded-lg bg-[#C13584] text-white text-xs font-semibold flex items-center justify-center gap-1.5"
+                            >
+                              <Instagram size={14} />
+                              <span>Kirim IG</span>
                             </button>
                             <button
                               type="button"
